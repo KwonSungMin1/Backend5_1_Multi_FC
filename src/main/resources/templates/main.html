@@ -104,7 +104,6 @@
             <li><a href="/" class="active"><i class="fas fa-home"></i> 메인 (Home)</a></li>
             <li><a href="/fields"><i class="fas fa-search"></i> 구장검색</a></li>
             <li><a href="/community"><i class="fas fa-users"></i> 커뮤니티</a></li>
-            <!-- ⭐⭐ ID 추가: 클릭 이벤트 바인딩 용 ⭐⭐ -->
             <li id="nav-chat-link-li"><a href="/chat" id="nav-chat-link"><i class="fas fa-comments"></i> 실시간채팅</a></li>
             <li><a href="/schedule"><i class="fas fa-calendar-alt"></i> 일정</a></li>
 
@@ -116,7 +115,6 @@
 
 <div class="video-background">
     <video poster="" autoplay muted loop>
-<!--        <source src="/videos/futsal_match_bg.mp4" type="video/mp4">-->
     </video>
 </div>
 <div class="video-overlay"></div>
@@ -241,7 +239,7 @@
         </div>
     </section>
 
-    <section class="global-cta-section">
+    <section class="global-cta-section" id="global-cta-register">
         <h2>지금 바로 당신의 풋살 팀을 찾으세요!</h2>
         <a href="/register" class="login-button" style="width: 300px; margin: 0 auto; text-decoration: none;">계정 생성하고 시작하기</a>
     </section>
@@ -386,6 +384,7 @@
         const memberContentArea = document.getElementById('member-content-area');
         const noScheduleViewHero = document.getElementById('no-schedule-view-hero');
         const chatPromoLink = document.getElementById('chat-promo-link');
+        const globalCtaRegister = document.getElementById('global-cta-register'); // ⭐ 추가된 CTA 섹션 ID ⭐
 
 
         const scheduleSection = document.getElementById('upcoming-schedule-section');
@@ -475,6 +474,12 @@
 
             // 일정/알림 영역만 표시 준비
             if (memberContentArea) memberContentArea.style.display = 'block';
+
+            // ⭐⭐⭐ 수정: 회원일 때 하단 CTA 숨김 ⭐⭐⭐
+            if (globalCtaRegister) {
+                globalCtaRegister.style.display = 'none';
+            }
+            // ⭐⭐⭐
 
             await checkPendingReviews();
             await checkUpcomingSchedules();
@@ -583,6 +588,12 @@
             // 기존 일정/알림 영역 숨김
             if (scheduleSection) scheduleSection.style.display = 'none';
             if (reviewSection) reviewSection.style.display = 'none';
+
+            // ⭐⭐⭐ 수정: 비회원일 때 하단 CTA 표시 ⭐⭐⭐
+            if (globalCtaRegister) {
+                globalCtaRegister.style.display = 'block';
+            }
+            // ⭐⭐⭐
 
             // (★) 실시간 채팅 링크 설정 (비회원: 로그인 유도)
             if (chatPromoLink) {
