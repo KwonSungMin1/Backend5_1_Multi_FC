@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FUTSAL MATCH - 메인 페이지</title>
-
-    <link rel="stylesheet" th:href="@{/css/style.css?v=219}">
+    <title>Multi FC - 메인 페이지</title> <link rel="stylesheet" th:href="@{/css/style.css?v=219}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -20,7 +18,7 @@
             padding: 0;
         }
 
-        /* Hero Section에 포함되지 않는 나머지 콘텐츠 영역 */
+        /* Hero 섹션에 포함되지 않는 나머지 콘텐츠 영역 */
         #upcoming-schedule-section, #review-notification-section {
             position: relative;
             z-index: 10; /* 비디오 배경 위에 오도록 */
@@ -181,8 +179,7 @@
             </div>
         </div>
 
-        <h1 class="hero-message">FUTSAL MATCH</h1>
-        <h2 class="hero-sub-message">실시간 풋살 매칭, 지금 시작하세요!</h2>
+        <h1 class="hero-message">Multi FC</h1> <h2 class="hero-sub-message">실시간 풋살 매칭, 지금 시작하세요!</h2>
 
         <a href="/fields" class="cta-button" style="z-index:50; position:relative;">매치 찾아보기</a>
 
@@ -232,37 +229,35 @@
     </section>
 
     <section id="features-section">
-        <h2 style="font-size: 36px; color: #2c3e50; margin-bottom: 60px; font-weight:900;">FUTSAL MATCH, 주요 서비스</h2>
+        <h2 style="font-size: 36px; color: #2c3e50; margin-bottom: 60px; font-weight:900;">Multi FC, 주요 서비스</h2> <div class="features-grid">
 
-        <div class="features-grid">
-
-            <div class="feature-card">
-                <div class="icon-wrapper">
-                    <i class="fas fa-map-marked-alt"></i>
-                </div>
-                <h3>최적의 구장 검색</h3>
-                <p>위치, 인원, 시간대별 맞춤형 필터로 주변 풋살장을 빠르게 찾아보세요. 지도 연동으로 접근성을 높입니다.</p>
-                <a href="/fields" class="card-link">구장 찾기</a>
+        <div class="feature-card">
+            <div class="icon-wrapper">
+                <i class="fas fa-map-marked-alt"></i>
             </div>
-
-            <div class="feature-card">
-                <div class="icon-wrapper">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <h3>실시간 매치 스케줄</h3>
-                <p>팀 또는 개인 매치 일정을 등록하고, 남은 인원을 확인하세요. 모든 참여자는 알림을 통해 일정을 관리합니다.</p>
-                <a href="/schedule" class="card-link">일정 확인</a>
-            </div>
-
-            <div class="feature-card">
-                <div class="icon-wrapper">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3>매너 기반 커뮤니티</h3>
-                <p>매치 후 팀원을 평가하여 신뢰도를 쌓으세요. 실시간 채팅과 자유게시판을 통해 활발하게 소통합니다.</p>
-                <a href="/community" class="card-link">커뮤니티 바로가기</a>
-            </div>
+            <h3>최적의 구장 검색</h3>
+            <p>위치, 인원, 시간대별 맞춤형 필터로 주변 풋살장을 빠르게 찾아보세요. 지도 연동으로 접근성을 높입니다.</p>
+            <a href="/fields" class="card-link">구장 찾기</a>
         </div>
+
+        <div class="feature-card">
+            <div class="icon-wrapper">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <h3>실시간 매치 스케줄</h3>
+            <p>팀 또는 개인 매치 일정을 등록하고, 남은 인원을 확인하세요. 모든 참여자는 알림을 통해 일정을 관리합니다.</p>
+            <a href="/schedule" class="card-link">일정 확인</a>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-wrapper">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3>매너 기반 커뮤니티</h3>
+            <p>매치 후 팀원을 평가하여 신뢰도를 쌓으세요. 실시간 채팅과 자유게시판을 통해 활발하게 소통합니다.</p>
+            <a href="/community" class="card-link">커뮤니티 바로가기</a>
+        </div>
+    </div>
     </section>
 
     <section class="global-cta-section" id="global-cta-register">
