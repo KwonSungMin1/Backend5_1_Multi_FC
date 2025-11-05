@@ -183,7 +183,6 @@
                 <button data-category="notice">공지사항</button>
                 <button data-category="free">자유게시판</button>
                 <button data-category="team">팀원모집</button>
-                <button data-category="review">경기리뷰</button>
             </div>
             <a href="/community/write" class="write-button" id="write-post-btn">
                 <i class="fas fa-pencil-alt"></i> 글쓰기
@@ -334,7 +333,7 @@
     const allPosts = [
         { id: 10, category: 'notice', categoryDisplay: '공지', title: '[필독] 공지사항 및 매너 점수 안내', writer: '관리자', date: '2025-10-25', likeCount: 50, viewCount: 1200, commentCount: 3 },
         { id: 9, category: 'team', categoryDisplay: '팀모집', title: '일요 새벽 경기 인원 모집 (MF 급구)', writer: '캡틴손', date: '2025-10-31', likeCount: 8, viewCount: 150, commentCount: 12 },
-        { id: 8, category: 'review', categoryDisplay: '경기리뷰', title: '수원 풋살파크 팀 리뷰 좋았습니다.', writer: '축구왕', date: '2025-10-30', likeCount: 15, viewCount: 220, commentCount: 7 },
+        // ⭐⭐ '경기리뷰' 데이터 제거됨 ⭐⭐
         { id: 7, category: 'free', categoryDisplay: '자유', title: '이번 주말 풋살화 추천 받아요', writer: '풋살매니아', date: '2025-10-28', likeCount: 3, viewCount: 80, commentCount: 2 },
     ];
 
@@ -349,6 +348,8 @@
         if (category === 'all') {
             filteredPosts = allPosts;
         } else {
+            // 'review' 카테고리가 제거되었으므로, 해당 카테고리 관련 로직은 안전합니다.
+            // 단, 데이터 배열에서 review 항목은 미리 제거해야 합니다. (아래 allPosts 배열에서 이미 제거됨)
             filteredPosts = allPosts.filter(post => post.category === category);
         }
 
