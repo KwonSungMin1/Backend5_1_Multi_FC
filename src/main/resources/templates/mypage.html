@@ -154,12 +154,25 @@
             border-left: 3px solid #6c5ce7;
         }
 
-        /* ⭐⭐ 오늘 날짜 강조 스타일 ⭐⭐ */
+        /* 오늘 날짜 강조 스타일 */
         .calendar-day-cell.today {
             border: 2px solid #ff7675; /* 오늘 날짜를 강조할 색상 (밝은 빨간색) */
             border-radius: 8px;
             background-color: #ffeaea;
             font-weight: bold;
+        }
+
+        /* ⭐⭐⭐ 캘린더 크기 확장을 위한 CSS 오버라이드 ⭐⭐⭐ */
+        .login-section#full-width-section {
+            /* 우측 사진 영역을 모두 흡수하도록 100% 폭 설정 */
+            flex: 1 1 100%;
+            max-width: 100%;
+            padding-right: 50px !important;
+        }
+        /* ⭐⭐ main-wrapper 폭을 줄여서 전체 창 크기를 조정합니다. ⭐⭐ */
+        .main-wrapper {
+            width: 850px; /* 최종 폭 조정 */
+            max-width: 95%; /* 모바일 대응 유지 */
         }
     </style>
 </head>
@@ -199,7 +212,7 @@
 
 <main class="login-page-main">
     <div class="main-wrapper">
-        <div class="login-section" style="padding-right: 70px;">
+        <div class="login-section" id="full-width-section">
             <div class="login-container">
                 <h1 class="title-login">마이페이지</h1>
 
@@ -328,7 +341,8 @@
 
                 </div> </div>
         </div>
-        <div class="background-image-section"></div>
+        <div class="background-image-section">
+        </div>
     </div>
 </main>
 
@@ -416,7 +430,6 @@
             email: "real.user@example.com",
             username: "RealUser123",
             nickname: "리얼유저",
-            // 풋살 포지션 명칭 반영
             position: "픽소 (FIXO)",
             address: "서울시 서초구",
             skillLevel: "중급"
@@ -456,27 +469,22 @@
     const prevMonthBtn = document.getElementById('prev-month');
     const nextMonthBtn = document.getElementById('next-month');
 
-    // 현재 날짜 기준으로 캘린더를 초기화합니다.
     let currentDate = new Date();
     currentDate.setDate(1);
 
-    // ERD 반영: 일정 데이터 (match 타입만 남김)
     const MOCK_SCHEDULES = [
         { day: 5, type: 'match', title: '강남 팀 매치', id: 1 },
         { day: 25, type: 'match', title: '수원 팀 매치', id: 3 }
     ];
 
-    // 개인 일정 관련 로직 제거 및 경기 일정으로 통일
     function handleEventClick(event, schedule) {
         event.stopPropagation();
-        // 모든 일정은 이제 경기 일정으로 간주하고 /schedule/detail로 이동
         window.location.href = `/schedule/detail/${schedule.id}`;
     }
 
     function renderCalendar() {
         daysGrid.innerHTML = '';
 
-        // 오늘 날짜 정보 획득
         const today = new Date();
         const currentDayOfMonth = today.getDate();
         const currentMonth = today.getMonth();
@@ -489,36 +497,30 @@
         const firstDayOfMonth = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        // 이전 달 빈 칸
         for (let i = 0; i < firstDayOfMonth; i++) {
             const cell = document.createElement('div');
             cell.classList.add('calendar-day-cell', 'other-month');
             daysGrid.appendChild(cell);
         }
 
-        // 이번 달 날짜
         for (let day = 1; day <= daysInMonth; day++) {
             const cell = document.createElement('div');
             cell.classList.add('calendar-day-cell');
             cell.textContent = day;
 
-            // 오늘 날짜일 경우 today 클래스 추가
             if (year === currentYear && month === currentMonth && day === currentDayOfMonth) {
                 cell.classList.add('today');
             }
 
 
-            // 일정 데이터 삽입
             const schedulesToday = MOCK_SCHEDULES.filter(s => s.day === day);
             if (schedulesToday.length > 0) {
                 schedulesToday.forEach(schedule => {
                     const eventDiv = document.createElement('div');
-                    // 모든 일정을 match-event로 고정
                     eventDiv.className = 'calendar-event match-event';
                     eventDiv.textContent = schedule.title;
-                    eventDiv.title = schedule.title; // 툴팁
+                    eventDiv.title = schedule.title;
 
-                    // 이벤트 리스너
                     eventDiv.onclick = (e) => handleEventClick(e, schedule);
                     cell.appendChild(eventDiv);
                 });
@@ -547,10 +549,10 @@
             button.classList.add('active');
             document.getElementById(targetSubTab).classList.add('active');
 
-            if (targetSubTab === 'sub-tab-friend-list') {
+            if (targetTab === 'sub-tab-friend-list') {
                 renderFriendList();
                 document.getElementById('friend-list-search-input').value = '';
-            } else if (targetSubTab === 'sub-tab-friend-add') {
+            } else if (targetTab === 'sub-tab-friend-add') {
                 document.getElementById('friend-add-search-input').value = '';
                 document.getElementById('friend-add-search-results').innerHTML = '<p style="color: #999; text-align: center;">검색 결과가 없습니다.</p>';
                 document.querySelector('.friend-add-actions').style.display = 'none';
