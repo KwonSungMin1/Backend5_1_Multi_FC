@@ -162,7 +162,7 @@
 <body>
 
 <header class="quick-menu">
-    <div class="logo"><a href="/">FUTSAL MATCH</a></div>
+    <div class="logo"><a href="/">Multi FC</a></div>
     <div class="header-icons">
         <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: none;">
             <i class="fas fa-user-circle"></i>
@@ -197,40 +197,25 @@
 
 <main class="schedule-search-main">
     <div class="search-container">
-        <h1 class="search-title">📅 일정 검색</h1>
+        <h1 class="search-title">📅 경기일정 검색</h1>
 
         <div class="filter-section">
             <input type="date" id="filter-date">
+
             <select id="filter-region">
-                <option value="">지역 전체</option>
-                <option value="seoul">서울</option>
-                <option value="gyeonggi">경기</option>
-                <option value="incheon">인천</option>
+                <option value="전체지역">전체지역</option>
             </select>
-            <!-- ⭐⭐ ERD 반영: 매칭 유형 필터 (match_type) ⭐⭐ -->
-            <select id="filter-type">
-                <option value="">유형 (전체)</option>
-                <option value="individual">개인 매칭</option>
-                <option value="team">팀 매칭</option>
-            </select>
-            <!-- ⭐⭐ ERD 반영: 실력 레벨 필터 (skill_level) ⭐⭐ -->
-            <select id="filter-skill-level">
-                <option value="">실력 (전체)</option>
-                <option value="beginner">초급</option>
-                <option value="intermediate">중급</option>
-                <option value="advanced">고급</option>
-            </select>
-            <!-- ⭐⭐ 추가 끝 ⭐⭐ -->
+
             <select id="filter-status">
                 <option value="">상태 (전체)</option>
                 <option value="open">모집중</option>
                 <option value="closed">모집완료</option>
             </select>
+
             <button id="search-btn">검색</button>
         </div>
 
         <div class="match-list-container" id="match-list-container">
-            <!-- JS 로직에 의해 매치 카드들이 여기에 삽입됩니다 -->
         </div>
         <p id="no-results-message" style="color: #666; text-align: center; margin-top: 30px; display: none;">검색 결과가 없습니다.</p>
     </div>
@@ -244,7 +229,7 @@
     const profileMenu = document.getElementById('profile-menu');
     const logoutButton = document.getElementById('logout-button');
     const navNotificationsLink = document.getElementById('nav-notifications-link');
-    const navChatLinkElement = document.getElementById('nav-chat-link'); // 추가
+    const navChatLinkElement = document.getElementById('nav-chat-link-li');
     const navLoginLink = document.getElementById('nav-login-link');
     const navLogoutLink = document.getElementById('nav-logout-link');
 
@@ -284,7 +269,16 @@
             window.location.href = '/notifications';
         });
     }
-    // 로그아웃 링크 핸들러는 DOMContentLoaded에서 다시 바인딩 됨 (유지)
+    if (navLogoutLink) {
+        navLogoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('hasReadReviews');
+            localStorage.removeItem('hasReadSchedules');
+            window.location.href = '/login';
+        });
+    }
+    // --- (★공통★) 메뉴 토글 로직 끝 ---
 
 
     const badge = document.getElementById('notification-badge');
@@ -325,12 +319,25 @@
         } catch (error) { console.error("일정 요청 중 오류 발생:", error); }
     }
 
-    // ⭐⭐ ERD 반영: 더미 매치 데이터 (Schedule 엔티티 속성 반영) ⭐⭐
-    const MOCK_MATCHES = [
-        { id: 1, date: "2025-11-01 (토) 19:00", location: "서울 강남 풋살장", creator: "캡틴손", current: 8, max: 10, status: "open", type: "팀 매칭", skill: "중급", amenities: ["샤워 가능", "주차 가능"] },
-        { id: 2, date: "2025-11-03 (월) 20:00", location: "수원 월드컵 풋살장", creator: "운영진", current: 12, max: 12, status: "closed", type: "개인 매칭", skill: "고급", amenities: ["주차 가능"] },
-        { id: 3, date: "2025-11-05 (수) 21:00", location: "용인 풋살파크", creator: "구원투수", current: 5, max: 12, status: "open", type: "팀 매칭", skill: "초급", amenities: ["샤워 가능"] },
+    // --- JS 데이터 구조 정의 ---
+    const METRO_CITIES = [
+        { value: '서울특별시', text: '서울특별시' },
+        { value: '부산광역시', text: '부산광역시' },
+        { value: '대구광역시', text: '대구광역시' },
+        { value: '인천광역시', text: '인천광역시' },
+        { value: '광주광역시', text: '광주광역시' },
+        { value: '대전광역시', text: '대전광역시' },
+        { value: '울산광역시', text: '울산광역시' }
     ];
+
+    // ⭐⭐ ERD 반영: 더미 매치 데이터 (특별시/광역시 위치로 재정의) ⭐⭐
+    const MOCK_MATCHES = [
+        { id: 1, date: "2025-11-01 (토) 19:00", location: "서울특별시 강남 풋살장", creator: "캡틴손", current: 8, max: 10, status: "open", type: "팀 매칭", skill: "중급", amenities: ["샤워 가능", "주차 가능"] },
+        { id: 2, date: "2025-11-03 (월) 20:00", location: "부산광역시 서면 풋살장", creator: "운영진", current: 12, max: 12, status: "closed", type: "개인 매칭", skill: "고급", amenities: ["주차 가능"] },
+        { id: 3, date: "2025-11-05 (수) 21:00", location: "인천광역시 연수구 풋살파크", creator: "구원투수", current: 5, max: 12, status: "open", type: "팀 매칭", skill: "초급", amenities: ["샤워 가능"] },
+        { id: 4, date: "2025-11-10 (월) 19:00", location: "대전광역시 유성구 풋살장", creator: "테스터", current: 8, max: 10, status: "open", type: "팀 매칭", skill: "중급", amenities: ["샤워 가능", "주차 가능"] },
+    ];
+
 
     // ⭐⭐ 매치 목록 렌더링 함수 ⭐⭐
     function renderMatchList(matches) {
@@ -352,8 +359,7 @@
             card.className = `match-item-card ${statusClass}`;
             card.dataset.matchId = match.id;
 
-            const amenities = match.amenities.map(tag => `<span style="margin-right: 15px;"><i class="fas fa-check" style="color:#2ecc71;"></i> ${tag}</span>`).join('');
-
+            // ⭐⭐ 유형/실력/편의 시설 문구 제거 ⭐⭐
             card.innerHTML = `
                 <div class="match-item-header">
                     <span class="date">${match.date}</span>
@@ -366,13 +372,7 @@
                         <i class="fas fa-map-marker-alt"></i>
                         ${match.location}
                     </p>
-                    <div class="match-details" style="font-size: 14px; color: #888; margin-bottom: 12px;">
-                        <span style="margin-right: 15px;"><i class="fas fa-users-cog"></i> 유형: ${match.type}</span>
-                        <span><i class="fas fa-running"></i> 실력: ${match.skill}</span>
-                    </div>
-                    <div class="stadium-amenities" style="margin-bottom: 12px; font-size: 14px; color: #888;">
-                        ${amenities}
-                    </div>
+
                     <p class="status">
                         <i class="fas fa-users"></i>
                         <span class="status-badge ${statusClass}">${match.status === 'open' ? '모집중' : '모집완료'}</span> ( ${match.current} / ${match.max}명 )
@@ -386,34 +386,26 @@
         });
     }
 
-    // ⭐⭐ 검색 실행 함수 (필터링 로직) ⭐⭐
+    // ⭐⭐ 수정: 검색 실행 함수 (단일 지역/상태 필터링) ⭐⭐
     function performSearch() {
         const date = document.getElementById('filter-date').value;
-        const region = document.getElementById('filter-region').value;
-        const type = document.getElementById('filter-type').value;
-        const skillLevel = document.getElementById('filter-skill-level').value;
-        const status = document.getElementById('filter-status').value;
+        const region = document.getElementById('filter-region').value; // 특별시/광역시 값
+        const status = document.getElementById('filter-status').value; // 상태 값
 
         let filtered = MOCK_MATCHES;
 
-        // 1. 날짜 필터 (간단 구현)
+        // 1. 날짜 필터
         if (date) {
             filtered = filtered.filter(match => match.date.includes(date));
         }
-        // 2. 지역 필터
-        if (region) {
-            const regionKeyword = region === 'seoul' ? '서울' : (region === 'gyeonggi' ? '경기' : '인천');
-            filtered = filtered.filter(match => match.location.includes(regionKeyword));
+
+        // 2. 지역 (특별시/광역시) 필터
+        if (region && region !== '전체지역') {
+            // location이 '서울특별시' 등으로 시작하는지 확인
+            filtered = filtered.filter(match => match.location.startsWith(region));
         }
-        // 3. 유형 필터
-        if (type) {
-            filtered = filtered.filter(match => match.type.toLowerCase().includes(type));
-        }
-        // 4. 실력 필터
-        if (skillLevel) {
-            filtered = filtered.filter(match => match.skill.toLowerCase() === skillLevel);
-        }
-        // 5. 상태 필터
+
+        // 3. 상태 필터
         if (status) {
             filtered = filtered.filter(match => match.status === status);
         }
@@ -451,18 +443,6 @@
             if (navLogoutLink) navLogoutLink.parentElement.style.display = 'none';
         }
 
-        // ⭐⭐ 보강: 메뉴바의 채팅 링크 클릭 방지 (회원만 허용) ⭐⭐
-        if (navChatLinkElement) {
-            const chatLinkAnchor = navChatLinkElement.querySelector('a');
-            if (chatLinkAnchor && !accessToken) {
-                chatLinkAnchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    alert("❌ 실시간 채팅은 회원만 이용할 수 있습니다.");
-                    window.location.href = '/login';
-                });
-            }
-        }
-
         // 검색 필터 초기화 및 이벤트 바인딩
         const dateFilter = document.getElementById('filter-date');
         if (dateFilter) {
@@ -474,7 +454,20 @@
             searchBtn.addEventListener('click', performSearch);
         }
 
+        const regionFilter = document.getElementById('filter-region');
+
+        // 1. 지역 옵션을 채웁니다. (중복 방지)
+        // HTML에 '전체지역' 옵션이 이미 있으므로, JS는 METRO_CITIES만 추가합니다.
+        METRO_CITIES.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.value;
+            option.textContent = city.text;
+            regionFilter.appendChild(option);
+        });
+
         // 초기 로드 시 전체 목록 표시
         renderMatchList(MOCK_MATCHES);
     });
 </script>
+</body>
+</html>
