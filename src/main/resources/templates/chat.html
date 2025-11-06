@@ -485,10 +485,10 @@
             border-radius: 10px;
             padding: 15px;
 
-            /* ⭐⭐⭐ 초기 숨김 상태 (화면 밖으로 이동) ⭐⭐⭐ */
+            /* ⭐⭐⭐ 초기 숨김 상태 (JS에서 display:none 제어) ⭐⭐⭐ */
             transform: translateX(100%);
             transition: transform 0.3s ease-in-out;
-            display: flex;
+            display: none; /* ⭐⭐ 초기 렌더링 시 아예 숨김 ⭐⭐ */
             flex-direction: column;
             z-index: 9999;
             border: 1px solid #ddd;
@@ -497,6 +497,7 @@
         /* 창이 열렸을 때 (현재 위치(right: 280px)로 이동) */
         .inline-profile-detail.open {
             transform: translateX(0%); /* X축 이동 0% = right: 280px 위치에 표시 */
+            display: flex; /* ⭐⭐ 열릴 때만 보이게 설정 ⭐⭐ */
         }
 
         .inline-profile-detail .close-profile-btn {
@@ -506,8 +507,8 @@
             background: none;
             border: none;
             font-size: 20px;
-            color: #555;
             cursor: pointer;
+            color: #555;
         }
         .profile-detail-img {
             width: 70px;
@@ -634,7 +635,6 @@
         <div id="current-chat-room">
             <div id="chat-room-header" class="chat-header">
 
-                <!-- ⭐⭐ 보강: 채팅방 제목과 상태를 함께 표시 (ChatRoom 정보) ⭐⭐ -->
                 <div class="room-title-wrapper">
                     <span id="room-title">채팅방 제목</span>
                     <div id="room-status-display" class="room-status-info">
@@ -642,8 +642,6 @@
                         <span id="room-participant-count">0/0</span>
                     </div>
                 </div>
-                <!-- ⭐⭐ 보강 끝 ⭐⭐ -->
-
                 <button onclick="openParticipantList()" style="background:none; border:none; color:#6c5ce7; font-size:18px; cursor:pointer;" title="참여자 목록">
                     <i class="fas fa-users"></i>
                 </button>
@@ -1068,12 +1066,12 @@
             const roomInfo = document.createElement('div');
             roomInfo.className = 'room-info';
             roomInfo.innerHTML = `
-                <div class="room-name">${room.name}</div>
-                <div style="font-size: 11px; color: #aaa; margin-top: 2px;">
-                    개설일: ${room.createdAt}
-                </div>
-                <div class="last-message">${room.lastMessage}</div>
-            `;
+                       <div class="room-name">${room.name}</div>
+                       <div style="font-size: 11px; color: #aaa; margin-top: 2px;">
+                           개설일: ${room.createdAt}
+                       </div>
+                       <div class="last-message">${room.lastMessage}</div>
+                   `;
             // roomInfo 클릭 시 room 객체 전체 전달
             roomInfo.onclick = () => selectRoom(room);
 
@@ -1277,13 +1275,13 @@
             item.onclick = () => openInlineProfileDetail(displayName);
 
             item.innerHTML = `
-                <div class="participant-icon-wrapper">
-                    <i class="${iconClass}"></i>
-                </div>
-                <div class="participant-details">
-                    <span class="participant-name">${displayName}${roleBadge}</span>
-                </div>
-            `;
+                       <div class="participant-icon-wrapper">
+                           <i class="${iconClass}"></i>
+                       </div>
+                       <div class="participant-details">
+                           <span class="participant-name">${displayName}${roleBadge}</span>
+                       </div>
+                   `;
             participantListContainer.appendChild(item);
         });
     }
@@ -1291,9 +1289,13 @@
     // ★★★ 최종 수정: 인라인 프로필 상세 정보 함수 (초기 숨김, 클릭 시 토글) ★★★
     function openInlineProfileDetail(username) {
 
+        const isCurrentlyOpen = inlineProfileDetail.classList.contains('open');
+
         // 닫기 요청이거나, 이미 열려 있는 상태에서 같은 유저를 다시 클릭하면 닫기
-        if (username === false || (inlineProfileDetail.classList.contains('open') && inlineProfileDetail.dataset.username === username)) {
+        if (username === false || (isCurrentlyOpen && inlineProfileDetail.dataset.username === username)) {
+            // ⭐⭐ 닫기 시 display: none으로 완전히 숨김 ⭐⭐
             inlineProfileDetail.classList.remove('open');
+            inlineProfileDetail.style.display = 'none'; // 즉시 숨김
             delete inlineProfileDetail.dataset.username;
             return;
         }
@@ -1309,10 +1311,12 @@
         document.getElementById('profile-location-detail').textContent = profile.location;
         document.getElementById('profile-position-detail').textContent = profile.position;
 
-        const matchInfo = currentChatType === 'one-on-one' ? '1:1 채팅' : '그룹 매칭';
+        const currentRoom = MOCK_ROOMS[currentChatType].find(r => r.id === currentRoomId);
+        const matchInfo = currentChatType === 'one-on-one' ? '1:1 채팅' : (currentRoom ? currentRoom.name : '그룹 매칭'); // 룸 이름 반영
         document.getElementById('profile-match-info-detail').textContent = matchInfo;
 
-        // 다른 유저 클릭 시 열기
+        // ⭐⭐ 열기 전 display: flex로 설정 ⭐⭐
+        inlineProfileDetail.style.display = 'flex';
         inlineProfileDetail.classList.add('open');
     }
 
@@ -1522,7 +1526,7 @@
 
                 const nameSpan = document.createElement('span');
                 nameSpan.innerHTML = `${friend.name}
-                <span class="friend-status ${isAvailable ? '' : 'offline'}">(${friend.status})</span>`;
+                       <span class="friend-status ${isAvailable ? '' : 'offline'}">(${friend.status})</span>`;
 
                 item.appendChild(checkbox);
                 item.appendChild(nameSpan);
@@ -1620,7 +1624,7 @@
         // ⭐⭐⭐ 비회원 접근 제어 로직 (채팅은 회원만 가능) ⭐⭐⭐
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) {
-            alert("❌ 실시간 채팅은 회원만 이용할 수 있습니다.");
+            alert("❌ 실시간 채팅은 회원만 이용할 수 없습니다.");
             window.location.href = '/login';
             return;
         }
@@ -1640,8 +1644,10 @@
         loadRoomList(currentChatType);
         // 초기 로드 후 UX 개선을 위해 1:1 채팅 폼 초기화
         updateNewChatForm('one-on-one');
+
+        // ⭐⭐ 초기 로드 시 인라인 프로필 창 숨김 ⭐⭐
+        openInlineProfileDetail(false);
     });
 </script>
 </body>
 </html>
-
