@@ -582,17 +582,29 @@
             text-align: center;
         }
         /* ⭐⭐ 보강 끝 ⭐⭐ */
+
+        /* ★추가: 친구 초대 버튼 스타일 개선 */
+        .invite-action-btn {
+            padding: 15px 25px !important; /* 내부 패딩 증가로 높이/크기 증가 */
+            font-size: 16px !important; /* 폰트 크기 유지 */
+            font-weight: 700 !important;
+            cursor: pointer !important; /* 마우스 포인터 추가 */
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .invite-action-btn:hover {
+            transform: translateY(-1px);
+            background-color: #27ae60 !important; /* hover 색상 변경 */
+        }
     </style>
 </head>
 <body>
 
 <header class="quick-menu">
-    <div class="logo"><a href="/">FUTSAL MATCH</a></div>
-    <div class="header-icons">
-        <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: none;"> <i class="fas fa-user-circle"></i> </button>
-        <div id="profile-menu" class="user-menu"></div>
-        <button id="menu-toggle" class="menu-toggle-btn"><i class="fas fa-bars"></i></button>
-    </div>
+    <div class="logo"><a href="/">Multi FC</a></div> <div class="header-icons">
+    <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: none;"> <i class="fas fa-user-circle"></i> </button>
+    <div id="profile-menu" class="user-menu"></div>
+    <button id="menu-toggle" class="menu-toggle-btn"><i class="fas fa-bars"></i></button>
+</div>
     <nav id="main-menu" class="main-nav">
         <ul>
             <li><a href="/"><i class="fas fa-home"></i> 메인 (Home)</a></li>
@@ -655,12 +667,11 @@
                         <h3 id="profile-nickname-detail">닉네임</h3>
                     </div>
                     <div class="profile-meta-info" style="border-top: 1px solid #eee; padding-top: 10px;">
-                        <p style="font-weight: 500;">지역: <strong id="profile-location-detail">...</strong></p>
+                        <p style="font-weight: 500;">장소: <strong id="profile-location-detail">...</strong></p>
                         <p style="font-weight: 500;">포지션: <strong id="profile-position-detail">...</strong></p>
-                        <p style="font-weight: 500;">매칭내용: <strong id="profile-match-info-detail">1:1 채팅</strong></p>
                     </div>
-                    <button class="chat-one-on-one-btn profile-action-button">1:1 채팅하기</button>
-                    <button class="send-friend-request-btn profile-action-button">친구 요청</button>
+                    <button class="chat-one-on-one-btn profile-action-button" id="profile-chat-btn">1:1 채팅하기</button>
+                    <button class="send-friend-request-btn profile-action-button" id="profile-friend-btn">친구 요청</button>
                 </div>
             </div>
 
@@ -686,7 +697,7 @@
     <div id="participant-list-container" class="participant-list-container">
     </div>
     <div style="padding: 15px; border-top: 1px solid #eee;">
-        <button class="btn-create" style="width: 100%;" onclick="openInviteModal()">
+        <button class="btn-create invite-action-btn" style="width: 100%;" onclick="openInviteModal()">
             <i class="fas fa-user-plus"></i> 친구 초대하기
         </button>
     </div>
@@ -821,6 +832,8 @@
     const roomStatusDisplay = document.getElementById('room-status-display');
     const roomParticipantCount = document.getElementById('room-participant-count');
     const roomTypeIcon = document.getElementById('room-type-icon');
+    const profileChatBtn = document.getElementById('profile-chat-btn');
+    const profileFriendBtn = document.getElementById('profile-friend-btn');
 
     // ★모달 내 요소
     const newChatTypeSelect = document.getElementById('new-chat-type');
@@ -1286,7 +1299,7 @@
         });
     }
 
-    // ★★★ 최종 수정: 인라인 프로필 상세 정보 함수 (초기 숨김, 클릭 시 토글) ★★★
+    // ★★★ 최종 수정: 인라인 프로필 상세 정보 함수 (매칭내용 제거) ★★★
     function openInlineProfileDetail(username) {
 
         const isCurrentlyOpen = inlineProfileDetail.classList.contains('open');
@@ -1308,31 +1321,36 @@
 
         document.getElementById('profile-img-detail').src = profile.profilePic || '/images/default-profile.png';
         document.getElementById('profile-nickname-detail').textContent = profile.nickname;
-        document.getElementById('profile-location-detail').textContent = profile.location;
+        document.getElementById('profile-location-detail').textContent = profile.location; // 장소 (지역)
         document.getElementById('profile-position-detail').textContent = profile.position;
-
-        const currentRoom = MOCK_ROOMS[currentChatType].find(r => r.id === currentRoomId);
-        const matchInfo = currentChatType === 'one-on-one' ? '1:1 채팅' : (currentRoom ? currentRoom.name : '그룹 매칭'); // 룸 이름 반영
-        document.getElementById('profile-match-info-detail').textContent = matchInfo;
+        // document.getElementById('profile-match-info-detail').textContent = matchInfo; // ⭐⭐ 매칭내용 제거 ⭐⭐
 
         // ⭐⭐ 열기 전 display: flex로 설정 ⭐⭐
         inlineProfileDetail.style.display = 'flex';
         inlineProfileDetail.classList.add('open');
     }
 
-    // 새 채팅 모달 열기/닫기
-    function openNewChatModal(open) {
+    // 새 채팅 모달 열기/닫기 (상대방 닉네임 인자 추가)
+    function openNewChatModal(open, recipientUsername = null) {
         if (open) {
             newChatModal.classList.add('open');
             newChatTitleInput.value = '';
-            newChatRecipientInput.value = '';
             newChatTypeSelect.value = 'one-on-one';
-            updateNewChatForm('one-on-one');
+            updateNewChatForm('one-on-one'); // 1:1 채팅으로 설정
+
+            // ⭐ 상대방 닉네임이 전달되었다면 input 필드에 채우기 ⭐
+            if (recipientUsername) {
+                newChatRecipientInput.value = recipientUsername;
+            } else {
+                newChatRecipientInput.value = '';
+            }
+
             newChatTitleInput.focus();
         } else {
             newChatModal.classList.remove('open');
         }
     }
+
 
     // ★새로운 함수: 채팅방 유형에 따라 폼 필드를 업데이트
     function updateNewChatForm(type) {
@@ -1535,7 +1553,7 @@
             });
 
         if (friendListToInvite.innerHTML === '') {
-            friendListToInvite.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">초대 가능한 친구가 없습니다.</p>';
+            friendListToInvite.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">초대할 친구가 없습니다.</p>';
         }
     }
 
@@ -1620,7 +1638,27 @@
         }
     });
 
+    // ⭐⭐ 인라인 프로필 액션 버튼 핸들러 연결 ⭐⭐
     document.addEventListener('DOMContentLoaded', () => {
+        // ... (기존 DOMContentLoaded 로직 유지) ...
+
+        if (profileChatBtn) {
+            profileChatBtn.addEventListener('click', function() {
+                const username = inlineProfileDetail.dataset.username;
+                openInlineProfileDetail(false); // 창 닫기
+                openNewChatModal(true, username); // 새 채팅 모달 열기 및 유저 이름 전달
+            });
+        }
+
+        if (profileFriendBtn) {
+            profileFriendBtn.addEventListener('click', function() {
+                const username = inlineProfileDetail.dataset.username;
+                alert(`${username}님에게 친구 요청을 보냅니다.`); // ⭐ 요청 시뮬레이션 알림 표시 ⭐
+                openInlineProfileDetail(false); // ⭐ 창 닫기 ⭐
+                // window.location.href = '/friends'; // ⭐ 페이지 이동 로직 제거 ⭐
+            });
+        }
+
         // ⭐⭐⭐ 비회원 접근 제어 로직 (채팅은 회원만 가능) ⭐⭐⭐
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) {
