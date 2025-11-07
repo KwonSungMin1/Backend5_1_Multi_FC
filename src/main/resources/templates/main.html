@@ -11,9 +11,7 @@
         /* 기존 main.html 내의 스타일을 IAMGROUND 스타일에 맞게 정리 */
 
         .main-content {
-            /* 이 클래스는 전체 페이지 레이아웃을 위해 그대로 사용 */
             min-height: 100vh;
-            /* Hero 섹션 아래 콘텐츠들이 body 배경 위로 올라오도록 투명하게 설정 */
             background: transparent;
             padding: 0;
         }
@@ -21,14 +19,55 @@
         /* Hero 섹션에 포함되지 않는 나머지 콘텐츠 영역 */
         #upcoming-schedule-section, #review-notification-section {
             position: relative;
-            z-index: 10; /* 비디오 배경 위에 오도록 */
+            z-index: 10;
         }
+
+        /* ⭐⭐⭐ Hero 섹션을 배경 컨테이너로 설정 (스크롤 문제 해결 핵심) ⭐⭐⭐ */
+        .hero-section {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative; /* 내부 absolute 요소의 기준점 */
+            color: white;
+            padding-top: 70px;
+            z-index: 5;
+            overflow: hidden;
+        }
+
+        /* Hero 섹션 내부의 배경 요소는 absolute로 Hero를 가득 채움 */
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* 부모(Hero) 높이를 가득 채움 */
+            z-index: 0 !important;
+            overflow: hidden;
+            background-image: url('futsal_main_background_clean.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* 부모(Hero) 높이를 가득 채움 */
+            /* ⭐⭐⭐ [수정] 오버레이를 투명하게 변경 ⭐⭐⭐ */
+            background: rgba(0, 0, 0, 0);
+            z-index: 1 !important;
+        }
+        /* ⭐⭐⭐ [수정 끝] ⭐⭐⭐ */
 
         /* ⭐⭐⭐ [추가] 알림 배너 닫기 버튼 스타일 ⭐⭐⭐ */
         #review-notification-section {
-            /* 기존 스타일 유지: flex를 사용했다는 가정 하에 padding을 조정 */
             position: relative;
-            padding-right: 40px; /* 닫기 버튼 공간 확보 */
+            padding-right: 40px;
         }
         .close-review-btn {
             position: absolute;
@@ -96,6 +135,22 @@
         }
         /* ⭐⭐⭐ 슬라이더 아이템 스타일 끝 ⭐⭐⭐ */
 
+        /* ⭐⭐⭐ [수정] 알림 배지 위치 조정 (더 아래로) ⭐⭐⭐ */
+        .notification-badge {
+            position: absolute;
+            top: 3px; /* 3px로 설정하여 아래로 이동 */
+            right: 0px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            font-size: 0;
+            display: none;
+            border: 1px solid white;
+        }
+        /* ⭐⭐⭐ [수정 끝] ⭐⭐⭐ */
+
     </style>
 </head>
 <body>
@@ -115,7 +170,6 @@
             <ul>
                 <li><a href="/notifications" id="nav-notifications-link"><i class="fas fa-bell"></i> 알림 목록</a></li>
                 <li><a href="/mypage"><i class="fas fa-user"></i> 마이페이지</a></li>
-                <li><a href="/friends"><i class="fas fa-users-cog"></i> 친구/팀원 관리</a></li>
                 <li><a href="/profile/edit"><i class="fas fa-user-edit"></i> 프로필 수정</a></li>
                 <li><a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> 로그아웃</a></li>
             </ul>
@@ -137,17 +191,16 @@
     </nav>
 </header>
 
-<div class="video-background">
-    <video poster="" autoplay muted loop>
-    </video>
-</div>
-<div class="video-overlay"></div>
-
 <main class="main-content">
 
     <section class="hero-section">
 
-        <div id="no-schedule-view-hero" style="display:none; position:relative; z-index:50;">
+        <div class="video-background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+            <video poster="" autoplay muted loop></video>
+        </div>
+        <div class="video-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
+
+        <div id="no-schedule-view-hero" style="position:relative; z-index:50; display:none;">
             <p class="no-schedule-message" style="color:white; font-size:1.5rem; text-shadow: 0 0 5px black;">
                 로그인하고 7일 이내의<br>나의 일정을 확인하세요! ⚽
             </p>
@@ -179,7 +232,7 @@
             </div>
         </div>
 
-        <h1 class="hero-message">Multi FC</h1> <h2 class="hero-sub-message">실시간 풋살 매칭, 지금 시작하세요!</h2>
+        <h1 class="hero-message" style="position:relative; z-index:50;">Multi FC</h1> <h2 class="hero-sub-message" style="position:relative; z-index:50;">실시간 풋살 매칭, 지금 시작하세요!</h2>
 
         <a href="/fields" class="cta-button" style="z-index:50; position:relative;">매치 찾아보기</a>
 
@@ -585,7 +638,7 @@
 
                 } else if (noScheduleView) {
                     // 일정이 없을 때 빈 메시지 표시 (Hero 섹션 내에서)
-                    noScheduleView.innerHTML = '<p class="no-schedule-message" style="color:white; text-shadow: 0 0 3px black;">아직 7일 이내의 일정이 없습니다. 😥</p>';
+                    noScheduleView.innerHTML = '<p class="no-schedule-message" style="color:white; text-shadow: 0 0 3px black;">아직 7일 이내의 일정이 없습니다.😥</p>';
                     noScheduleView.style.display = 'block';
                     if(document.querySelector('.schedule-slider-container')) document.querySelector('.schedule-slider-container').style.display = 'none';
                 }
@@ -619,7 +672,7 @@
                 // 메인 페이지의 CTA 링크는 자체적으로 경고를 띄웁니다.
                 chatPromoLink.onclick = function(e) {
                     e.preventDefault();
-                    alert("실시간 채팅은 로그인 후 이용 가능합니다.");
+                    alert("실시간 채팅은 회원만 이용할 수 없습니다.");
                     window.location.href = "/login";
                 };
             }
@@ -628,7 +681,7 @@
             if (navChatLinkElement) {
                 navChatLinkElement.querySelector('a').addEventListener('click', function(e) {
                     e.preventDefault();
-                    alert("❌ 실시간 채팅은 회원만 이용할 수 있습니다.");
+                    alert("❌ 실시간 채팅은 회원만 이용할 수 없습니다.");
                     window.location.href = '/login';
                 });
             }
