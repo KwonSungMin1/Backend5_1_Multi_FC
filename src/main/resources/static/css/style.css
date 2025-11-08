@@ -31,8 +31,9 @@ body, html {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    /* [복구] 배경: 흰색 계열 */
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
     z-index: 9999;
     position: fixed;
     top: 0;
@@ -42,7 +43,8 @@ body, html {
 .quick-menu .logo a {
     font-size: 24px;
     font-weight: 900;
-    color: #2c3e50;
+    /* [복구] 텍스트: 어두운 색 */
+    color: #2c3e50 !important;
     text-decoration: none;
 }
 
@@ -56,7 +58,8 @@ body, html {
 
 .profile-icon {
     font-size: 28px;
-    color: #6c5ce7;
+    /* [최종 수정] 프로필 아이콘 색상을 강렬한 보라색으로 명시적으로 적용 */
+    color: #6c5ce7 !important;
     transition: color 0.3s;
     background: none;
     border: none;
@@ -87,7 +90,8 @@ body, html {
 .menu-toggle-btn {
     background: none;
     border: none;
-    color: #2c3e50;
+    /* [수정] 햄버거 아이콘 색상을 짙은 회색(#34495e)으로 적용 */
+    color: #34495e !important;
     font-size: 22px;
     cursor: pointer;
     padding: 5px;
@@ -101,7 +105,8 @@ body, html {
     position: absolute;
     top: 70px;
     right: 20px;
-    background: rgba(255, 255, 255, 0.95);
+    /* [복구] 배경: 흰색 계열 */
+    background: rgba(255, 255, 255, 0.95) !important;
     border: 1px solid #ddd;
     border-radius: 10px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
@@ -119,7 +124,8 @@ body, html {
 }
 .main-nav ul li a {
     text-decoration: none;
-    color: #2c3e50;
+    /* [복구] 텍스트: 어두운 색 */
+    color: #2c3e50 !important;
     font-weight: 600;
     font-size: 15px;
     transition: background-color 0.3s, color 0.3s;
@@ -128,7 +134,8 @@ body, html {
     padding: 12px 20px;
 }
 .main-nav ul li a i {
-    color: #2c3e50;
+    /* [복구] 아이콘: 어두운 색 */
+    color: #2c3e50 !important;
     margin-right: 12px;
     font-size: 18px;
     width: 20px;
@@ -139,8 +146,9 @@ body, html {
 .main-nav ul li a:hover,
 .main-nav ul li a:focus,
 .main-nav ul li a.active {
+    /* 활성/호버 시 보라색 강조 */
     color: #6c5ce7;
-    background-color: rgba(108, 92, 231, 0.1);
+    background-color: rgba(108, 92, 231, 0.1) !important;
     border-left: 4px solid #6c5ce7;
     padding-left: 16px;
     outline: none;
@@ -175,7 +183,8 @@ body, html {
     top: 55px;
     right: 40px;
     width: 220px;
-    background: #ffffff;
+    /* [복구] 배경: 흰색 */
+    background: #ffffff !important;
     border: 1px solid #ddd;
     border-radius: 10px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
@@ -187,7 +196,8 @@ body, html {
 }
 .user-menu .user-info {
     padding: 15px 20px;
-    background: #f7f7f7;
+    /* [복구] 사용자 정보 배경: 밝은 회색 */
+    background: #f7f7f7 !important;
     border-bottom: 1px solid #eee;
 }
 .user-menu .user-info strong { font-size: 16px; color: #2c3e50; }
@@ -195,13 +205,21 @@ body, html {
 .user-menu ul { list-style: none; padding: 5px 0; margin: 0; }
 .user-menu ul li a {
     display: flex; align-items: center; padding: 12px 20px;
-    text-decoration: none; color: #333; font-size: 14px; font-weight: 500;
+    text-decoration: none;
+    /* [복구] 드롭다운 항목 텍스트: 어두운 색 */
+    color: #333 !important;
+    font-size: 14px; font-weight: 500;
 }
 .user-menu ul li a i {
-    margin-right: 12px; color: #6c5ce7;
+    margin-right: 12px;
+    /* [수정] 드롭다운 항목 아이콘: 보라색 강조 */
+    color: #6c5ce7 !important;
     width: 16px; font-size: 16px;
 }
-.user-menu ul li a:hover { background-color: rgba(108, 92, 231, 0.1); }
+.user-menu ul li a:hover {
+    background-color: rgba(108, 92, 231, 0.1) !important;
+    color: #6c5ce7 !important;
+}
 #logout-button { color: #e74c3c; }
 #logout-button i { color: #e74c3c; }
 
