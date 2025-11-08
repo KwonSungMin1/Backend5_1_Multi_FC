@@ -1348,3 +1348,13 @@ body, html {
 .inline-profile-detail {
     /* 이 스타일은 chat.html 내부 <style> 태그에서 관리되므로, 여기에 덮어쓰기 하지 않습니다. */
 }
+.main-section {
+    flex: 1;
+    padding: 50px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background: rgba(255, 255, 255);
+    position: relative;
+    overflow-y: auto;
+}
