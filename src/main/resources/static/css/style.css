@@ -260,11 +260,11 @@ body, html {
     position: relative;
     overflow-y: auto;
 }.title-login {
-    font-size: 38px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 25px;
-}
+     font-size: 38px;
+     font-weight: 700;
+     color: #2c3e50;
+     margin-bottom: 25px;
+ }
 .input-with-icon {
     position: relative;
     display: flex;
