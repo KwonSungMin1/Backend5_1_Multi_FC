@@ -329,9 +329,8 @@
             display: none; /* Mobile first: 숨김 */
             position: absolute;
             top: 70px; /* 헤더 높이 아래 */
-            right: 0;
-            background: rgba(30, 45, 60, 0.95);
-            width: 150px;
+            right: 20px; /* ⭐⭐⭐ [수정] 오른쪽에서 20px 여백 확보 ⭐⭐⭐ */
+            width: 180px; /* ⭐⭐⭐ [수정] 메뉴 폭을 180px로 줄입니다. ⭐⭐⭐ */
             box-shadow: 0 8px 16px rgba(0,0,0,0.3);
             border-bottom-left-radius: 8px;
             overflow: hidden;
@@ -347,7 +346,8 @@
         }
         .main-nav ul li a {
             display: block;
-            padding: 15px 15px; /* 드롭다운 메뉴 아이템 좌우 패딩 유지 */
+            /* ⭐⭐⭐ [수정] 좌우 패딩을 12px로 줄여 메뉴 창 크기를 줄입니다. ⭐⭐⭐ */
+            padding: 15px 12px;
             color: #bdc3c7;
             text-decoration: none;
             font-size: 16px;
@@ -1230,7 +1230,7 @@
             if (navChatLinkElement) {
                 navChatLinkElement.addEventListener('click', function(e) {
                     e.preventDefault();
-                    alert("❌ 실시간 채팅은 회원만 이용할 수 없습니다.");
+                    alert("실시간 채팅은 회원만 이용할 수 없습니다.");
                     window.location.href = '/login';
                 });
             }
