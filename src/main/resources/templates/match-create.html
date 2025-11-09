@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUTSAL MATCH - 경기 개설</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        .match-create-main {
+            padding: 100px 40px 40px 40px;
+            background-color: #f7f7f7;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .create-form-container {
+            width: 100%;
+            max-width: 600px; /* 폼 컨테이너 너비 제한 */
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center; /* 내부 요소들을 중앙 정렬 */
+        }
+        .form-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #6c5ce7;
+            padding-bottom: 10px;
+            display: inline-block; /* border-bottom이 제목 너비만큼만 */
+        }
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left; /* 라벨과 입력 필드 왼쪽 정렬 */
+        }
+        .form-group label {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+            color: #34495e;
+            margin-bottom: 8px;
+        }
+        /* date, time, select, text 공통 스타일 */
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group input[type="date"]:focus,
+        .form-group select:focus {
+            border-color: #6c5ce7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        }
+        /* 비활성화된 입력 필드 스타일 (값 표시용) */
+        .form-group input[type="text"][readonly] {
+            background-color: #e9ecef; /* 배경색을 밝은 회색으로 변경하여 자동 작성된 값 강조 */
+            color: #495057;
+            font-weight: 600;
+            border: 1px solid #ced4da;
+        }
+
+        .time-select-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .time-select-group select {
+            flex-grow: 1;
+            min-width: 120px;
+        }
+        .time-select-group span {
+            font-size: 20px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        /* 생성 버튼 스타일 (검정 계열) */
+        .submit-button {
+            width: 100%;
+            padding: 15px 0;
+            background-color: #333;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .submit-button:hover {
+            background-color: #1a1a1a;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<header class="quick-menu">
+    <div class="logo"><a href="/">FUTSAL MATCH</a></div>
+    <div class="header-icons">
+        <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: none;"> <i class="fas fa-user-circle"></i>
+            <span id="notification-badge" class="notification-badge"></span>
+        </button>
+        <div id="profile-menu" class="user-menu">
+            <div class="user-info">
+                <strong><span id="user-menu-username">사용자</span>님</strong>
+                <p>환영합니다!</p>
+            </div>
+            <ul>
+                <li><a href="/notifications" id="nav-notifications-link"><i class="fas fa-bell"></i> 알림 목록</a></li>
+                <li><a href="/mypage"><i class="fas fa-user"></i> 마이페이지</a></li>
+                <li><a href="/profile/edit"><i class="fas fa-user-edit"></i> 프로필 수정</a></li>
+                <li><a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> 로그아웃</a></li>
+            </ul>
+        </div>
+        <button id="menu-toggle" class="menu-toggle-btn"><i class="fas fa-bars"></i></button>
+    </div>
+    <nav id="main-menu" class="main-nav">
+        <ul>
+            <li><a href="/"><i class="fas fa-home"></i> 메인 (Home)</a></li>
+            <li><a href="/fields"><i class="fas fa-search"></i> 구장검색</a></li>
+            <li><a href="/community"><i class="fas fa-users"></i> 커뮤니티</a></li>
+            <li id="nav-chat-link-li"><a href="/chat" id="nav-chat-link"><i class="fas fa-comments"></i> 실시간채팅</a></li>
+            <li><a href="/schedule"><i class="fas fa-calendar-alt"></i> 일정</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="match-create-main">
+    <div class="create-form-container">
+        <h1 class="form-title">경기 개설</h1>
+
+        <form id="createMatchForm">
+            <div class="form-group">
+                <label for="hostName">주최자</label>
+                <input type="text" id="hostName" value="로그인 사용자" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="stadiumName">장소</label>
+                <input type="text" id="stadiumName" value="구장 정보 없음" readonly>
+                <input type="hidden" id="stadiumId" name="stadiumId">
+            </div>
+
+            <div class="form-group">
+                <label for="matchDate">날짜</label>
+                <input type="date" id="matchDate" name="matchDate" required>
+            </div>
+            <div class="form-group">
+                <label for="startTime">시간</label>
+                <div class="time-select-group">
+                    <select id="startTime" name="startTime"></select>
+                    <span>~</span>
+                    <select id="endTime" name="endTime"></select>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-button">생성</button>
+        </form>
+    </div>
+</main>
+
+<script>
+    // --- (★공통★) 메뉴 토글 및 인증 로직 (유지) ---
+    const menuToggle = document.getElementById('menu-toggle');
+    const mainMenu = document.getElementById('main-menu');
+    const profileMenuToggle = document.getElementById('profile-menu-toggle');
+    const profileMenu = document.getElementById('profile-menu');
+    const logoutButton = document.getElementById('logout-button');
+    const navNotificationsLink = document.getElementById('nav-notifications-link');
+    const navChatLinkElement = document.getElementById('nav-chat-link');
+
+    if (menuToggle) {
+        menuToggle.addEventListener('click', () => {
+            mainMenu.classList.toggle('show');
+            if (profileMenu) profileMenu.classList.remove('show');
+        });
+    }
+    if (profileMenuToggle) {
+        profileMenuToggle.addEventListener('click', () => {
+            if (profileMenu) profileMenu.classList.toggle('show');
+            if (mainMenu) mainMenu.classList.remove('show');
+        });
+    }
+    document.addEventListener('click', (event) => {
+        if (!mainMenu.contains(event.target) && !menuToggle.contains(event.target) &&
+            (!profileMenu || !profileMenu.contains(event.target)) && (!profileMenuToggle || !profileMenuToggle.contains(event.target))) {
+            mainMenu.classList.remove('show');
+            if (profileMenu) profileMenu.classList.remove('show');
+        }
+    });
+    if (logoutButton) {
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('hasReadReviews');
+            localStorage.removeItem('hasReadSchedules');
+            window.location.href = '/login';
+        });
+    }
+    if (navNotificationsLink) {
+        navNotificationsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.setItem('hasReadReviews', 'true');
+            localStorage.setItem('hasReadSchedules', 'true');
+            window.location.href = '/notifications';
+        });
+    }
+
+    // ⭐⭐ 페이지별 로직 ⭐⭐
+    document.addEventListener('DOMContentLoaded', () => {
+        const accessToken = localStorage.getItem('accessToken');
+        const currentPath = window.location.pathname;
+
+        // DUMMY DATA for Stadium lookup
+        const DUMMY_STADIUMS = {
+            '1': { name: '강남 풋살 아레나', hostNickname: '리얼유저' },
+            '2': { name: '수원 월드컵 구장', hostNickname: '캡틴손' }
+        };
+        const DEFAULT_USER = "로그인 사용자";
+
+        // ⭐ 회원 전용 페이지 접근 차단 로직 ⭐
+        if (!accessToken) {
+            alert("❌ 회원 전용 페이지입니다.\n로그인 후에 이용하실 수 있습니다.");
+            localStorage.setItem('redirectAfterLogin', currentPath);
+            window.location.href = '/login';
+            return;
+        } else {
+            // 로그인 상태일 때 프로필 메뉴 표시
+            if (profileMenuToggle) profileMenuToggle.style.display = 'block';
+            if (document.getElementById('user-menu-username')) document.getElementById('user-menu-username').textContent = DEFAULT_USER;
+            if (document.getElementById('hostName')) document.getElementById('hostName').value = DEFAULT_USER; // 주최자 자동 채우기
+        }
+
+        // ⭐ 1. 시간 선택 드롭다운 동적 생성 ⭐
+        const startTimeSelect = document.getElementById('startTime');
+        const endTimeSelect = document.getElementById('endTime');
+
+        function populateTimeSelects() {
+            startTimeSelect.innerHTML = '';
+            endTimeSelect.innerHTML = '';
+
+            // 시작 시간: 00:00 부터 23:00
+            for (let i = 0; i <= 23; i++) {
+                const timeStr = String(i).padStart(2, '0') + ':00';
+                startTimeSelect.innerHTML += `<option value="${timeStr}">${timeStr}</option>`;
+            }
+
+            // 종료 시간: 01:00 부터 24:00 (다음 날 00:00 포함)
+            for (let i = 1; i <= 24; i++) {
+                const timeStr = String(i).padStart(2, '0') + ':00';
+                endTimeSelect.innerHTML += `<option value="${timeStr}">${timeStr}</option>`;
+            }
+
+            // 기본값 설정 (예: 19:00 시작, 20:00 종료)
+            startTimeSelect.value = "19:00";
+            endTimeSelect.value = "20:00";
+        }
+        populateTimeSelects();
+
+        // ⭐ 2. 날짜 필드 기본값 설정 및 장소 필드 자동 채우기 ⭐
+        const urlParams = new URLSearchParams(window.location.search);
+        const stadiumId = urlParams.get('stadiumId'); // stadium-detail.html에서 전달된 ID
+        const stadiumNameInput = document.getElementById('stadiumName');
+        const hiddenStadiumIdInput = document.getElementById('stadiumId');
+        const hostNameInput = document.getElementById('hostName');
+
+        const matchDateInput = document.getElementById('matchDate');
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+        const dd = String(today.getDate()).padStart(2, '0');
+
+        const todayDateStr = `${yyyy}-${mm}-${dd}`;
+        matchDateInput.value = todayDateStr; // 오늘 날짜를 기본값으로 설정
+        matchDateInput.min = todayDateStr;   // 오늘 이전 날짜 선택 불가
+
+        if (stadiumId) {
+            const stadiumData = DUMMY_STADIUMS[stadiumId];
+
+            if (stadiumData) {
+                stadiumNameInput.value = stadiumData.name; // 실제 구장 이름 표시
+            } else {
+                stadiumNameInput.value = `구장 ID ${stadiumId} (정보 없음)`;
+            }
+            hiddenStadiumIdInput.value = stadiumId;
+        } else {
+            stadiumNameInput.value = "구장 검색 페이지에서 선택해 주세요.";
+        }
+
+        // ⭐ 3. 주최자 필드에 로그인 사용자 이름 표시 ⭐
+        hostNameInput.value = DEFAULT_USER;
+
+        // ⭐ 4. 폼 제출 이벤트 핸들러 (날짜/시간 유효성 검사 추가) ⭐
+        const createMatchForm = document.getElementById('createMatchForm');
+        createMatchForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // 페이지 새로고침 방지
+
+            const matchDate = matchDateInput.value; // ⭐ 날짜 값 가져오기 ⭐
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+
+            // 유효성 검사 1: 구장 선택
+            if (!stadiumId || stadiumNameInput.value.includes("정보 없음")) {
+                alert("❌ 경기 개설을 위해서는 유효한 구장을 먼저 선택해야 합니다.");
+                return;
+            }
+            // 유효성 검사 2: 날짜 선택
+            if (!matchDate) {
+                alert("❌ 경기 날짜를 선택해 주세요.");
+                return;
+            }
+
+            // 유효성 검사 3: 시작/종료 시간 비교
+            if (startTime >= endTime) {
+                alert("❌ 시작 시간은 종료 시간보다 빨라야 합니다.");
+                return;
+            }
+
+            // 유효성 검사 4: 과거 시간 개설 방지 (오늘 날짜인 경우에만 시간 비교)
+            const startDateTimeStr = `${matchDate}T${startTime}`;
+            const currentDateTimeStr = new Date().toISOString().slice(0, 16); // YYYY-MM-DDTHH:MM
+
+            if (startDateTimeStr < currentDateTimeStr) {
+                alert("❌ 이미 지난 날짜나 시간으로는 경기를 개설할 수 없습니다.");
+                return;
+            }
+
+
+            const matchData = {
+                host: hostNameInput.value,
+                stadiumId: hiddenStadiumIdInput.value,
+                stadiumName: stadiumNameInput.value,
+                date: matchDate, // ⭐ 날짜 데이터 추가 ⭐
+                startTime: startTime,
+                endTime: endTime
+            };
+
+            console.log("경기 개설 데이터:", matchData);
+
+            // ⭐ API 호출 시뮬레이션 및 리다이렉션 경로 수정 ⭐
+            const NEW_MATCH_ID = Date.now();
+
+            alert(`'${matchData.stadiumName}'에서 '${matchData.date} ${matchData.startTime} ~ ${matchData.endTime}' 경기가 성공적으로 개설되었습니다!`);
+
+            // 경기 상세 페이지로 리다이렉션
+            window.location.href = `/schedule/detail/${NEW_MATCH_ID}`;
+        });
+    });
+</script>
+</body>
+</html>
