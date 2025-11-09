@@ -1390,3 +1390,48 @@ body, html {
     justify-content: center;
     height: 40px; /* ✅ 균일 정렬 */
 }
+
+.board-container {
+    max-width: 1200px; /* 기존 900px → 1200px로 확장 */
+    width: 90%; /* 화면 폭의 90% 차지하도록 설정 */
+}
+
+/* 📌 게시판 테이블 스타일 수정 */
+.board-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* 열 간격 균등 정렬 */
+}
+
+.board-table th, .board-table td {
+    text-align: center;
+    padding: 16px 12px; /* 높이 여유롭게 */
+    font-size: 15px;
+    border-bottom: 1px solid #eee;
+    word-wrap: break-word;
+}
+
+/* 📅 날짜 칸을 넓히기 */
+.board-table th:nth-child(6),
+.board-table td:nth-child(6) {
+    width: 180px; /* 기존보다 넓게 */
+}
+
+/* 📄 제목 칸도 약간 여유 */
+.board-table th:nth-child(3),
+.board-table td:nth-child(3) {
+    width: 300px;
+}
+.board-table th {
+    background-color: #f9f9f9;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.board-table tr:hover {
+    background-color: rgba(108, 92, 231, 0.05);
+    transition: background 0.2s;
+}
+.community-main {
+    padding: 80px 60px;
+}

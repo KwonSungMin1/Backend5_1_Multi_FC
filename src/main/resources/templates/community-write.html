@@ -160,6 +160,8 @@
 
 <main class="community-main">
     <div class="board-container">
+
+        <!-- ✅ 작성/수정 폼 -->
         <p id="post-success-message" class="info-message" style="display:none;"></p>
         <p id="post-error-message" class="error-message" style="display:none;"></p>
 
@@ -173,7 +175,6 @@
             </div>
 
             <div class="write-form">
-
                 <div class="input-group">
                     <label for="category">카테고리 선택</label>
                     <select id="category" name="category" required>
@@ -188,15 +189,13 @@
                     <input type="text" id="title" name="title" placeholder="제목을 입력하세요" required>
                 </div>
 
-                <div id="editor-container">
-                </div>
+                <div id="editor-container"></div>
             </div>
 
             <input type="hidden" id="post-content-html" name="contentHtml">
         </form>
     </div>
 </main>
-
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
 <script>
@@ -275,11 +274,9 @@
 
             if (path === '/' && href === '/') {
                 link.classList.add('active');
-            }
-            else if (path.startsWith('/community') && href === '/community') {
+            } else if (path.startsWith('/community') && href === '/community') {
                 link.classList.add('active');
-            }
-            else if (href !== '/' && path.startsWith(href)) {
+            } else if (href !== '/' && path.startsWith(href)) {
                 link.classList.add('active');
             }
         });
@@ -297,34 +294,50 @@
     /**
      * 게시글 ID를 받아 수정 모드로 폼을 로드합니다. (유지)
      */
+    /**
+     * 게시글 ID를 받아 수정 모드로 폼을 로드합니다. (로컬스토리지 연동)
+     */
     function loadPostForEdit(postId) {
-        const post = MOCK_DETAIL_POSTS[postId];
+        let posts = [];
+        try {
+            const storedData = localStorage.getItem('community_posts');
+            if (storedData) posts = JSON.parse(storedData);
+        } catch (e) {
+            console.error("로컬스토리지 파싱 오류:", e);
+            posts = [];
+        }
+
+        const post = posts.find(p => String(p.id) === String(postId));
+
         const headerTitle = document.querySelector('.write-header h1');
         const submitBtn = document.querySelector('.btn-save');
 
         if (!post) {
-            alert("❌ 수정할 게시글 정보를 찾을 수 없습니다.");
+            alert("❌ 수정할 게시물 정보를 찾을 수 없습니다.");
             window.location.href = '/community';
             return;
         }
 
-        // 1. UI를 수정 모드로 변경
+
+        // ✅ UI 변경
         headerTitle.textContent = `게시글 수정 (ID: ${postId})`;
         submitBtn.textContent = '수정';
 
-        // 2. 폼 필드에 기존 데이터 채우기
+        // ✅ 데이터 채우기
         document.getElementById('category').value = post.category;
         document.getElementById('title').value = post.title;
 
-        // 3. Quill 에디터에 내용 채우기
+
+        // ✅ Quill 에디터 내용 반영
         const quillEditor = Quill.find(document.querySelector('#editor-container'));
-        if (quillEditor && post.contentHtml) {
-            quillEditor.root.innerHTML = post.contentHtml;
+        if (quillEditor && post.content) {
+            quillEditor.root.innerHTML = post.content;
         }
 
-        // 4. 폼 데이터에 ID 저장
+        // ✅ 수정 대상 ID를 form dataset에 저장
         writeForm.dataset.postId = postId;
     }
+
     // ------------------------------------
 
 
@@ -343,9 +356,9 @@
 
         // ⭐⭐⭐ 1. Quill Editor 초기화 - Undo/Redo 기능 연결 ⭐⭐⭐
         const toolbarOptions = [
-            [{ 'header': [1, 2, false] }],
+            [{'header': [1, 2, false]}],
             ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{'list': 'ordered'}, {'list': 'bullet'}],
             ['link', 'image'],
             ['undo', 'redo'],
             ['clean']
@@ -402,7 +415,7 @@
     const errorMsg = document.getElementById('post-error-message');
 
     // ⭐⭐⭐ [최종 수정] 폼 제출 시 로컬 스토리지에 저장하고 이동하도록 로직 변경 ⭐⭐⭐
-    writeForm.addEventListener('submit', async function(e) {
+    writeForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         successMsg.style.display = 'none';
         errorMsg.style.display = 'none';
@@ -426,7 +439,20 @@
             return;
         }
 
-        // ⭐ 1. 새/수정된 게시글 객체 생성 ⭐
+        // ✅ 한국 시간 기준 yyyy-mm-dd hh:mm 문자열 생성
+        const today = new Date();
+        const koreaOffset = today.getTime() + (today.getTimezoneOffset() * 60000) + (9 * 60 * 60 * 1000);
+        const koreaDate = new Date(koreaOffset);
+        const formattedDate = koreaDate.toLocaleString("ko-KR", {
+            timeZone: "Asia/Seoul",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        // ✅ 게시글 객체 생성
         let categoryDisplayValue = '';
         switch (category) {
             case 'notice':
@@ -449,36 +475,33 @@
             title: title,
             content: contentHtml,
             writer: '현재 사용자',
-            date: new Date().toISOString().slice(0, 10),
+            date: formattedDate, // ✅ 한국 시간 기준
             commentCount: 0,
             viewCount: 0,
             writerId: 999 // 더미 writerId 추가 (권한 체크 대비)
         };
 
-
-        // ⭐ 2. 로컬 스토리지에 글 목록 업데이트 (새 글 등록 또는 기존 글 수정) ⭐
+        // ✅ 로컬 스토리지에 글 목록 업데이트
         let posts = JSON.parse(localStorage.getItem('community_posts')) || [];
 
         if (writeForm.dataset.postId) {
-            // 수정 모드: 기존 글 찾아서 업데이트
+            // 수정 모드
             const index = posts.findIndex(p => String(p.id) === postId);
             if (index !== -1) {
-                posts[index] = { ...posts[index], ...newPost };
+                posts[index] = {...posts[index], ...newPost};
             }
         } else {
-            // 등록 모드: 새 글 추가 (맨 앞에 추가)
+            // 등록 모드
             posts.unshift(newPost);
         }
 
         localStorage.setItem('community_posts', JSON.stringify(posts));
 
-
-        // ⭐ 3. 성공 메시지 및 리다이렉션 ⭐
+        // ✅ 성공 메시지 및 리다이렉션
         successMsg.textContent = `✅ 게시글이 성공적으로 ${actionName}되었습니다. 커뮤니티로 이동합니다.`;
         successMsg.style.display = 'block';
 
         setTimeout(() => {
-            // URL에 랜덤 쿼리 파라미터를 추가하여 브라우저가 캐시된 페이지가 아닌 새 페이지를 로드하도록 강제합니다.
             const uniqueStamp = Date.now();
             window.location.href = `/community?refresh=${uniqueStamp}`;
         }, 1500);
