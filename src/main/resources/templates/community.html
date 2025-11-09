@@ -521,7 +521,7 @@
         if (accessToken) {
             // ✅ 로그인 상태 설정
             if (profileIcon) profileIcon.style.display = 'flex';
-            if (userMenuName) userMenuName.textContent = localStorage.getItem('username') || '회원';
+            if (userMenuName) userMenuName.textContent = localStorage.getItem('username') || '사용자';
 
             // ✅ 알림 배지 표시
             updateGlobalBadge();
