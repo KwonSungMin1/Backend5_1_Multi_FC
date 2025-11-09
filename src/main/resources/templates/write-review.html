@@ -12,10 +12,10 @@
     <style>
         /* ⭐ 폼 중앙 정렬 및 배경 제거/단순화 ⭐ */
         .login-page-main {
-            padding: 100px 20px 40px 20px;
+            padding: 100px 20px 40px 20px; /* 상단 패딩 유지, 좌우 패딩 줄임 */
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            justify-content: center; /* 폼을 중앙으로 */
             align-items: flex-start; /* 상단 시작점 정렬 */
             background-image: none; /* 배경 이미지 제거 */
             background-color: #f7f7f7;
@@ -96,7 +96,7 @@
             display: flex;
             align-items: center;
             direction: rtl; /* 별점 순서 반대로 */
-            font-size: 40px; /* ⭐ 30px에서 40px로 변경 ⭐ */
+            font-size: 50px; /* ⭐ 50px로 최종 확대 ⭐ */
         }
         .star-rating input[type="radio"] {
             display: none;
@@ -189,7 +189,7 @@
 
                 <div class="input-group">
                     <label>경기 정보</label>
-                    <input type="text" id="match-info" value="2025-10-30 (목) 19:00 구장명" disabled>
+                    <input type="text" id="match-info" value="2025-08-00 (목) 19:00 구장명" disabled>
 
                     <input type="hidden" id="match-id" name="matchId" value="12345">
                     <input type="hidden" id="stadium-id" name="stadiumId" value="1">
