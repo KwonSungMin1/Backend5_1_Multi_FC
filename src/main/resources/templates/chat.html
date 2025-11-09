@@ -600,18 +600,18 @@
 <body>
 
 <header class="quick-menu">
-    <div class="logo"><a href="/">Multi FC</a></div> <div class="header-icons">
-    <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: none;"> <i class="fas fa-user-circle"></i> </button>
-    <div id="profile-menu" class="user-menu"></div>
-    <button id="menu-toggle" class="menu-toggle-btn"><i class="fas fa-bars"></i></button>
-</div>
+    <div class="logo"><a href="/">Multi FC</a></div>
+    <div class="header-icons">
+        <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: none;"> <i class="fas fa-user-circle"></i> </button>
+        <div id="profile-menu" class="user-menu"></div>
+        <button id="menu-toggle" class="menu-toggle-btn"><i class="fas fa-bars"></i></button>
+    </div>
     <nav id="main-menu" class="main-nav">
         <ul>
             <li><a href="/"><i class="fas fa-home"></i> 메인 (Home)</a></li>
             <li><a href="/fields"><i class="fas fa-search"></i> 구장검색</a></li>
             <li><a href="/community"><i class="fas fa-users"></i> 커뮤니티</a></li>
             <li id="nav-chat-link-li"><a href="/chat" class="active"><i class="fas fa-comments"></i> 실시간채팅</a></li>
-            <li><a href="/schedule"><i class="fas fa-calendar-alt"></i> 일정</a></li>
         </ul>
     </nav>
 </header>
@@ -630,7 +630,6 @@
         </div>
 
         <div id="chat-type-tabs" class="chat-type-tabs">
-            <button data-type="public">전체 채팅</button>
             <button data-type="group">그룹 채팅</button>
             <button data-type="one-on-one">1:1 채팅</button>
         </div>
@@ -711,7 +710,6 @@
         <select id="new-chat-type" onchange="updateNewChatForm(this.value)">
             <option value="one-on-one" selected>1:1 채팅</option>
             <option value="group">그룹 채팅</option>
-            <option value="public">전체 채팅 (전체 공개)</option>
         </select>
 
         <div id="max-participants-group" style="display: none;">
@@ -843,16 +841,12 @@
     const chatFormInfo = document.getElementById('chat-form-info');
 
     const RECONNECT_INTERVAL = 5000;
-    let currentChatType = 'public'; // ★기본값 public으로 설정 (HTML 탭과 일치)
+    let currentChatType = 'group'; // ⭐ 기본값을 'group'으로 변경
     let nextChatRoomId = 300; // 새로운 방 ID 시작점
 
     // --- 더미 데이터 (ERD 반영: unreadCount 추가) ---
     const MOCK_ROOMS = {
-        'public': [
-            // ⭐⭐ unreadCount 추가 (ERD: Chat_Message.read_at 반영) ⭐⭐
-            { id: 201, name: '🚨 관리자 공지', lastMessage: '[공지] 매너 점수 시스템 개편 안내', participants: ['관리자', 'MyUser123', 'UserA', 'UserB', 'UserC', 'UserD', '캡틴손', '구원투수'], maxParticipants: 50, createdAt: '2025-10-20', unreadCount: 1 },
-            { id: 202, name: '📢 자유 수다방', lastMessage: '오늘 풋살화 샀는데 추천 좀 해주세요!', participants: ['MyUser123', '풋살매니아', '축구왕'], maxParticipants: 50, createdAt: '2025-11-01', unreadCount: 0 }
-        ],
+        // 'public' 항목 전체 삭제 (201, 202 방도 삭제)
         'group': [
             { id: 1, name: '⚽ 11/05 수원 풋살 (10명)', lastMessage: 'UserA: 네, 거기서 봬요!', participants: ['MyUser123 (방장)', 'UserA', 'UserB', 'UserC', 'UserD'], maxParticipants: 10, createdAt: '2025-10-28', unreadCount: 5 },
             { id: 2, name: '📌 팀원 모집 - 캡틴손', lastMessage: '좋아요, 포지션은 DF 가능합니다.', participants: ['MyUser123 (방장)', '캡틴손', '구원투수'], maxParticipants: 12, createdAt: '2025-11-02', unreadCount: 0 }
@@ -863,17 +857,9 @@
         ]
     };
 
-    // ⭐⭐ 보강: MOCK_HISTORY 더미 채팅 내용 추가 ⭐⭐
+    // ⭐ MOCK_HISTORY 수정: public 방 ID 제거
     const MOCK_HISTORY = {
-        201: [
-            { sender: '관리자', content: '🚨 [필독] 매너 점수 시스템이 개편됩니다. 공지사항을 확인해주세요.', timestamp: '오전 9:00' },
-            { sender: 'UserA', content: '공지 잘 읽었습니다! 매너 점수 관리 철저히 하겠습니다.', timestamp: '오전 9:05' }
-        ],
-        202: [
-            { sender: '풋살매니아', content: '오늘 풋살화 샀는데 추천 좀 해주세요! 아디다스 신상이 궁금해요.', timestamp: '오후 3:00' },
-            { sender: 'MyUser123', content: '저는 나이키 티엠포 사용 중인데, 발 편하고 좋아요!', timestamp: '오후 3:05' },
-            { sender: '축구왕', content: '저도 티엠포 추천합니다! 🤣', timestamp: '오후 3:10' }
-        ],
+        // 201, 202 항목 제거 완료
         1: [
             { sender: 'UserA', content: '경기 장소 혹시 변경된 건 없나요?', timestamp: '오전 10:00' },
             { sender: 'MyUser123', content: '아닙니다, 그대로 서울 강남 풋살장입니다. 시간 맞춰 오세요!', timestamp: '오전 10:05' }
@@ -891,8 +877,6 @@
             { sender: 'MyUser123', content: '죄송합니다, 이번 주말은 선약이 있어요. 😭', timestamp: '오후 7:15' }
         ]
     };
-    // ⭐⭐ 보강 끝 ⭐⭐
-
 
     const MOCK_PROFILES = {
         'UserA': { nickname: 'UserA', position: 'FW', location: '서울 강남구', profilePic: '/images/mock_user_a.png' },
@@ -1359,7 +1343,7 @@
         if (type === 'one-on-one') {
             recipientInputGroup.style.display = 'block';
             maxParticipantsGroup.style.display = 'none'; // 1:1은 인원 설정 숨김
-            chatFormInfo.textContent = '상대방 닉네임이 필수입니다.';
+            chatFormInfo.textContent = '1:1 채팅은 상대방 닉네임이 필수입니다.';
             newChatRecipientInput.placeholder = '1:1 채팅할 상대방의 닉네임을 입력하세요';
 
         } else if (type === 'group') {
@@ -1368,11 +1352,12 @@
             chatFormInfo.textContent = '그룹 채팅에 초대할 참여자 닉네임을 쉼표(,)로 입력하세요 (선택 사항).';
             newChatRecipientInput.placeholder = '초대할 닉네임 입력 (선택 사항)';
 
-        } else if (type === 'public') {
-            recipientInputGroup.style.display = 'none';
-            maxParticipantsGroup.style.display = 'none'; // 전체 채팅은 인원 설정 숨김
-            chatFormInfo.textContent = '전체 채팅방은 누구나 참여 가능합니다.';
         }
+        /* else if (type === 'public') { // 전체 채팅 로직 삭제
+            recipientInputGroup.style.display = 'none';
+            maxParticipantsGroup.style.display = 'none';
+            chatFormInfo.textContent = '전체 채팅방은 누구나 참여 가능합니다.';
+        } */
 
         // 폼 초기화 (헷갈리지 않도록)
         newChatRecipientInput.value = '';
@@ -1392,7 +1377,7 @@
 
         let newRoomName = title;
         let newParticipants = [myUsername];
-        let maxCount = 50; // 기본값
+        let maxCount; // maxCount는 type에 따라 설정됩니다.
 
         if (type === 'one-on-one') {
             if (!recipientInput) {
@@ -1423,15 +1408,15 @@
             } else {
                 newParticipants = [myUsername + ' (방장)'];
             }
-            // ⭐⭐ 수정: 최대 인원 값 사용 ⭐⭐
             maxCount = parseInt(maxParticipantsInput.value) || 10;
             if (maxCount < 3) maxCount = 3;
 
-        } else if (type === 'public') {
-            newRoomName = `[전체] ${title}`;
-            newParticipants = [myUsername]; // 방장만 초기 참여자로 가정
-            maxCount = 50; // Public 고정
         }
+        /* else if (type === 'public') { // 전체 채팅 로직 삭제
+            newRoomName = `[전체] ${title}`;
+            newParticipants = [myUsername];
+            maxCount = 50;
+        } */
 
         // 새 방 ID 생성 및 데이터 추가
         const newRoomId = nextChatRoomId++;
@@ -1442,7 +1427,8 @@
             participants: newParticipants,
             maxParticipants: maxCount,
             // ⭐⭐ 수정: 현재 날짜로 개설일 설정 ⭐⭐
-            createdAt: new Date().toISOString().slice(0, 10)
+            createdAt: new Date().toISOString().slice(0, 10),
+            unreadCount: 0 // 새로 만든 방이므로 0
         };
 
         MOCK_ROOMS[type].unshift(newRoom); // 목록 맨 앞에 추가
@@ -1464,7 +1450,6 @@
     // 인라인 상세 정보 창을 닫는 로직만 남겨둠
     function openProfileModal(username) {
         // 이 함수는 기존 모달을 닫는 역할만 수행하거나, 아예 사용하지 않도록 처리합니다.
-        // 대신 openInlineProfileDetail(username)을 사용합니다.
         console.warn("openProfileModal 대신 openInlineProfileDetail을 사용하세요.");
         if (username === false) {
             const modal = document.getElementById('profile-modal');
@@ -1526,7 +1511,7 @@
         MOCK_FRIENDS.filter(friend => friend.name !== myUsername.split(' ')[0] && !currentParticipantsNames.includes(friend.name))
             .forEach(friend => {
                 const item = document.createElement('div');
-                item.className = 'invite-friend-item';
+                item.className = 'friend-item';
                 item.dataset.friendName = friend.name;
 
                 const isAvailable = friend.status === '온라인'; // 초대 로직은 온라인만 가능하다고 가정
@@ -1640,7 +1625,7 @@
 
     // ⭐⭐ 인라인 프로필 액션 버튼 핸들러 연결 ⭐⭐
     document.addEventListener('DOMContentLoaded', () => {
-        // ... (기존 DOMContentLoaded 로직 유지) ...
+        // ... (공통 로직 유지) ...
 
         if (profileChatBtn) {
             profileChatBtn.addEventListener('click', function() {
@@ -1655,7 +1640,6 @@
                 const username = inlineProfileDetail.dataset.username;
                 alert(`${username}님에게 친구 요청을 보냅니다.`); // ⭐ 요청 시뮬레이션 알림 표시 ⭐
                 openInlineProfileDetail(false); // ⭐ 창 닫기 ⭐
-                // window.location.href = '/friends'; // ⭐ 페이지 이동 로직 제거 ⭐
             });
         }
 
@@ -1668,16 +1652,14 @@
         }
 
         // HTML 탭 순서와 JS 초기화를 맞춥니다.
-        const defaultType = 'public'; // HTML에서 public이 첫 번째이므로 기본값으로 설정
-        let activeTab = document.querySelector(`[data-type="public"]`);
+        const defaultType = 'group'; // ⭐ 기본값을 'group'으로 설정 ⭐
+        let activeTab = document.querySelector(`[data-type="${defaultType}"]`);
 
         // 현재 active 클래스가 없는 경우 defaultTab을 활성화합니다.
-        if (!document.querySelector('.chat-type-tabs button.active')) {
-            if (activeTab) activeTab.classList.add('active');
-            currentChatType = defaultType;
-        } else {
-            currentChatType = document.querySelector('.chat-type-tabs button.active').dataset.type;
-        }
+        chatTypeTabs.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+        if (activeTab) activeTab.classList.add('active');
+
+        currentChatType = defaultType;
 
         loadRoomList(currentChatType);
         // 초기 로드 후 UX 개선을 위해 1:1 채팅 폼 초기화
