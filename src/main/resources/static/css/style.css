@@ -42,7 +42,7 @@ body, html {
 .quick-menu .logo a {
     font-size: 22px;
     font-weight: 700;
-    color: #000; /* ✅ 진한 검정으로 통일 */
+    color: #000; /* ✅ 진한 검정으로 통일함 */
     text-decoration: none;
     letter-spacing: 0.5px;
 }
