@@ -139,6 +139,15 @@ public class AuthController {
         return "fields"; // 구장 검색 (fields.html)
     }
 
+    // ⭐⭐ [추가] 경기 생성 페이지 매핑 ⭐⭐
+    @GetMapping("/match/create")
+    public String matchCreatePage(@RequestParam(value = "stadiumId", required = false) Long stadiumId, Model model) {
+        if (stadiumId != null) {
+            model.addAttribute("stadiumId", stadiumId);
+        }
+        return "match-create"; // templates/match-create.html 뷰 반환
+    }
+
     // 구장 상세 페이지 매핑 (ID 기반)
     @GetMapping("/stadium/detail")
     public String stadiumDetailPage(@RequestParam("id") Long id, Model model) {

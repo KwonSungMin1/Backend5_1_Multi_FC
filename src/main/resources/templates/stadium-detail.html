@@ -16,20 +16,32 @@
             min-height: 100vh;
         }
         .stadium-container {
-            max-width: 900px;
+            /* max-width를 1200px로 확장하여 2열 공간 확보 */
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: grid; /* Grid 컨테이너 사용 */
+            grid-template-columns: 1fr 400px; /* 왼쪽(정보/맵) 1fr, 오른쪽(리뷰) 400px */
+            gap: 30px;
         }
         .stadium-title {
+            grid-column: 1 / -1; /* 제목은 전체 너비 차지 */
             font-size: 32px;
             font-weight: 800;
-            color: #2ecc71; /* 구장/경기장 강조색 */
-            margin-bottom: 25px;
+            color: #333; /* 검정색 유지 */
+            margin-bottom: 5px; /* Grid 간격이 있으므로 줄임 */
             border-bottom: 3px solid #6c5ce7;
             padding-bottom: 10px;
+        }
+
+        /* ⭐⭐ 왼쪽 정보 및 맵 영역 (1열) ⭐⭐ */
+        .detail-left-column {
+            grid-column: 1 / 2;
+            display: flex;
+            flex-direction: column;
         }
 
         .map-area {
@@ -44,11 +56,25 @@
             font-size: 20px;
             color: #888;
         }
+
+        /* ⭐⭐ 오른쪽 리뷰 영역 (2열) ⭐⭐ */
+        .review-right-column {
+            grid-column: 2 / 3;
+            grid-row: 2 / span 2; /* ⭐ 2번째 행부터 시작하여 오른쪽 열 전체를 차지 ⭐ */
+            background: #fcfcfc;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            max-height: 800px; /* 스크롤 높이 제한 */
+            overflow-y: auto;
+        }
+
+        /* 구장 기본 정보 카드 스타일 */
         .info-card {
             border: 1px solid #ddd;
             border-radius: 10px;
             padding: 20px;
-            margin-top: 20px;
+            margin-top: 0; /* Left-column 내에서 간격 조정 */
         }
         .info-item {
             display: flex;
@@ -80,22 +106,142 @@
         .action-button-group {
             text-align: center;
             margin-top: 30px;
+            grid-column: 1 / 2; /* 왼쪽 컬럼 하단에 위치 */
+            display: flex;
+            justify-content: center;
+            gap: 15px; /* 버튼 간격 조정 */
         }
         .action-button-group a {
             display: inline-block;
-            padding: 12px 25px;
+            padding: 14px 28px; /* 패딩 증가 */
             font-weight: 700;
-            border-radius: 30px;
+            border-radius: 30px; /* 더 둥글게 */
             text-decoration: none;
-            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            flex-grow: 0;
+            flex-shrink: 0;
         }
+        /* ⭐ 매치/일정 확인 버튼 (검정 계열) ⭐ */
         .btn-schedule {
-            background-color: #2ecc71;
+            background-color: #333; /* 검정색 */
             color: white;
+            border: 2px solid #1a1a1a; /* 진한 검정 테두리 */
         }
-        .btn-review {
-            background-color: #f39c12;
+        .btn-schedule:hover {
+            background-color: #1a1a1a; /* 호버 시 더 진하게 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* 검정 계열 그림자 */
+        }
+        /* ⭐ 경기 생성 버튼 (빨강 계열) ⭐ */
+        .btn-create-match {
+            background-color: #e74c3c; /* 빨강색 */
             color: white;
+            border: 2px solid #c0392b; /* 진한 빨강 테두리 */
+        }
+        .btn-create-match:hover {
+            background-color: #c0392b; /* 호버 시 더 진하게 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3); /* 빨강 계열 그림자 */
+        }
+
+
+        /* ⭐⭐ 리뷰 리스트 및 페이지네이션 스타일 ⭐⭐ */
+        .review-right-column h2 {
+            font-size: 24px;
+            color: #333; /* 검정색 유지 */
+            margin-bottom: 15px;
+        }
+
+        #review-list {
+            min-height: 300px;
+        }
+        .review-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .review-user {
+            font-weight: 700;
+            color: #6c5ce7;
+            display: flex; /* 별점과 사용자명을 한 줄에 정렬 */
+            align-items: center;
+        }
+        .review-date {
+            color: #999;
+        }
+        .review-content {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #333;
+        }
+        /* ⭐⭐ 별점 표시 스타일 ⭐⭐ */
+        .review-item .star-display {
+            color: #f39c12; /* 주황색 별 */
+            font-size: 18px;
+            margin-right: 10px;
+            letter-spacing: 2px;
+        }
+
+        .review-actions { /* 수정/삭제 버튼 컨테이너 */
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 5px;
+            justify-content: flex-end; /* 오른쪽 정렬 */
+        }
+        .review-actions button {
+            background: none;
+            border: none;
+            color: #6c5ce7;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 2px 5px;
+            transition: color 0.2s;
+        }
+        .review-actions button.delete {
+            color: #e74c3c;
+        }
+
+
+        /* 페이지네이션 스타일 */
+        .pagination-controls {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        .pagination-controls button {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin: 0 5px;
+            color: #555;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .pagination-controls button:hover:not(:disabled) {
+            background-color: #f0f0f0;
+        }
+        .pagination-controls button.active {
+            background-color: #6c5ce7;
+            color: white;
+            border-color: #6c5ce7;
+        }
+        .pagination-controls button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -106,6 +252,7 @@
     <div class="header-icons">
         <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: block;">
             <i class="fas fa-user-circle"></i>
+            <span id="notification-badge" class="notification-badge"></span>
         </button>
         <div id="profile-menu" class="user-menu">
             <div class="user-info">
@@ -124,8 +271,9 @@
     <nav id="main-menu" class="main-nav">
         <ul>
             <li><a href="/"><i class="fas fa-home"></i> 메인 (Home)</a></li>
-            <li><a href="/fields" class="active"><i class="fas fa-search"></i> 구장검색</a></li> <li><a href="/community"><i class="fas fa-users"></i> 커뮤니티</a></li>
-            <li><a href="/chat"><i class="fas fa-comments"></i> 실시간채팅</a></li>
+            <li><a href="/fields" class="active"><i class="fas fa-search"></i> 구장검색</a></li>
+            <li><a href="/community"><i class="fas fa-users"></i> 커뮤니티</a></li>
+            <li id="nav-chat-link-li"><a href="/chat" id="nav-chat-link"><i class="fas fa-comments"></i> 실시간채팅</a></li>
             <li><a href="/schedule"><i class="fas fa-calendar-alt"></i> 일정</a></li>
         </ul>
     </nav>
@@ -134,144 +282,347 @@
 <main class="stadium-main">
     <div class="stadium-container">
 
-        <h1 class="stadium-title" id="stadium-name">구장 이름 (ID: <span th:text="${stadiumId}">1</span>)</h1>
+        <h1 class="stadium-title" id="stadium-name">강남 풋살 아레나 (ID: <span th:text="${stadiumId}">1</span>)</h1>
 
-        <div class="map-area" id="map">
-            (KakaoMap API가 표시될 구장 위치)
-        </div>
+        <div class="detail-left-column">
 
-        <div class="info-card">
-            <h2>구장 기본 정보</h2>
-
-            <div class="info-item">
-                <i class="fas fa-map-marker-alt"></i>
-                <span id="stadium-address">주소</span>
-            </div>
-            <div class="info-item">
-                <i class="fas fa-phone"></i>
-                <span id="stadium-contact">연락처</span>
-            </div>
-            <div class="info-item">
-                <i class="fas fa-won-sign"></i>
-                <span id="stadium-fee">시간당 비용</span>
-            </div>
-            <div class="info-item">
-                <i class="fas fa-users"></i>
-                <span id="stadium-size">추천 매칭 사이즈</span>
+            <div class="map-area" id="map">
+                (KakaoMap API가 표시될 구장 위치)
             </div>
 
-            <div class="amenities-list">
-                <strong>편의 시설 (ERD: etc_info)</strong>
-                <div id="stadium-amenities">
-                    <!-- JS로 태그 삽입 -->
+            <div class="info-card">
+                <h2>구장 기본 정보</h2>
+
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="stadium-address">서울 강남구 테헤란로 123</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span id="stadium-contact">02-1234-5678</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-won-sign"></i>
+                    <span id="stadium-fee">50,000원/시간</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-users"></i>
+                    <span id="stadium-size">6 vs 6</span>
+                </div>
+
+                <div class="amenities-list">
+                    <strong>편의 시설 (ERD: etc_info)</strong>
+                    <div id="stadium-amenities">
+                        <span class="amenity-tag">샤워실 완비</span>
+                        <span class="amenity-tag">넉넉한 주차장</span>
+                        <span class="amenity-tag">대기실 제공</span>
+                    </div>
                 </div>
             </div>
+
+        </div>
+
+        <div class="review-right-column">
+            <h2 style="font-size: 24px; color: #333; margin-bottom: 15px;">⭐ 구장 리뷰 (<span id="review-count">0</span>건)</h2>
+
+            <div id="review-list">
+            </div>
+
+            <div id="pagination-controls" class="pagination-controls" style="display:none;">
+                <button id="prev-page">&lt;</button>
+                <div id="page-numbers" style="display: inline;">
+                </div>
+                <button id="next-page">&gt;</button>
+            </div>
+
         </div>
 
         <div class="action-button-group">
             <a href="/schedule?stadiumId=1" class="btn-schedule" id="btn-schedule">
                 <i class="fas fa-calendar-alt"></i> 매치/일정 확인
             </a>
-            <a href="/community?category=review&stadiumId=1" class="btn-review" id="btn-review">
-                <i class="fas fa-star"></i> 구장 리뷰 보기
+
+            <a href="/match/create" class="btn-create-match" id="btn-create-match">
+                <i class="fas fa-plus-circle"></i> 경기 생성
             </a>
         </div>
+
     </div>
 </main>
 
 <script>
-    // --- (★공통★) 메뉴 토글 및 인증 로직 (필요한 경우 여기에 삽입) ---
+    // --- (★공통★) 메뉴 토글 및 인증 로직 (유지) ---
     const menuToggle = document.getElementById('menu-toggle');
-    const mainMenu = document.getElementById('main-menu');
+    const mainMenu = document.getElementById('main-nav');
     const profileMenuToggle = document.getElementById('profile-menu-toggle');
-    const profileMenu = document.getElementById('profile-menu');
+    const profileMenu = document.getElementById('user-menu');
     const logoutButton = document.getElementById('logout-button');
 
     if (menuToggle) {
         menuToggle.addEventListener('click', () => {
             mainMenu.classList.toggle('show');
-            profileMenu.classList.remove('show');
+            if (profileMenu) profileMenu.classList.remove('show');
         });
     }
     if (profileMenuToggle) {
         profileMenuToggle.addEventListener('click', () => {
-            profileMenu.classList.toggle('show');
-            mainMenu.classList.remove('show');
+            if (profileMenu) profileMenu.classList.toggle('show');
+            if (mainMenu) mainMenu.classList.remove('show');
         });
     }
-    if (logoutButton) {
-        logoutButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.removeItem('accessToken');
-            window.location.href = '/login';
-        });
+    // ... (나머지 공통 로직 및 JS 유지) ...
+
+
+    // ⭐⭐ 리뷰 페이지네이션 구현 ⭐⭐
+
+    const REVIEWS_PER_PAGE = 10;
+    let currentPage = 1;
+    let MOCK_ALL_REVIEWS = []; // 전체 리뷰 데이터를 저장할 배열
+
+    // ⭐ 더미 리뷰 데이터 생성 (페이지네이션 테스트를 위해 12개 생성)
+    function generateMockReviews() {
+        const reviews = [];
+        // ⭐ 새 리뷰어의 별점은 5점으로 가정하여, 로컬 스토리지 리뷰와 구분됩니다.
+        const names = ["캡틴손", "풋살매니아", "새 리뷰어", "축구사랑", "달리기왕", "키퍼짱", "스트라이커K"];
+        const contents = [
+            "구장 상태가 매우 깨끗하고 잔디 컨디션이 최고입니다.",
+            "샤워 시설이 잘 되어 있어서 퇴근 후 바로 경기하기 좋습니다. 조명도 밝아서 야간 경기하기 좋아요.",
+            "초보자에게 적합한 레벨의 매칭이 많아서 부담 없이 즐길 수 있었습니다! 위치도 좋습니다.",
+            "주차 공간이 조금 좁은 것이 흠이지만, 가성비가 좋아요.",
+            "관리자분이 친절하셔서 기분 좋게 운동했습니다.",
+            "다음에도 꼭 이용하고 싶은 구장입니다. 추천!",
+            "잔디가 약간 딱딱한 감이 있지만, 전체적으로 만족합니다."
+        ];
+
+        for (let i = 1; i <= 12; i++) {
+            reviews.push({
+                id: i,
+                user: names[i % names.length],
+                date: `2025-10-${String(10 + i).padStart(2, '0')}`,
+                content: contents[i % contents.length] + ` (Review #${i})`,
+                rating: (i % 5) + 1
+            });
+        }
+        return reviews;
     }
+
+    // ⭐ 리뷰 목록 렌더링 함수 (페이지네이션 적용)
+    function renderReviews(page) {
+        currentPage = page;
+        const listContainer = document.getElementById('review-list');
+        const totalReviews = MOCK_ALL_REVIEWS.length;
+
+        // ⭐ 현재 로그인 사용자를 "새 리뷰어"로 가정합니다. ⭐
+        const CURRENT_USER_NICKNAME = "새 리뷰어";
+
+        // 페이지네이션 로직 계산
+        const startIndex = (page - 1) * REVIEWS_PER_PAGE;
+        const endIndex = startIndex + REVIEWS_PER_PAGE;
+        const reviewsToDisplay = MOCK_ALL_REVIEWS.slice(startIndex, endIndex);
+
+        listContainer.innerHTML = '';
+
+        if (totalReviews === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: #999; padding: 50px;">등록된 리뷰가 없습니다.</p>';
+            document.getElementById('review-count').textContent = 0;
+            document.getElementById('pagination-controls').style.display = 'none';
+            return;
+        }
+
+        reviewsToDisplay.forEach(review => {
+            const item = document.createElement('div');
+            item.className = 'review-item';
+
+            // ⭐⭐ 수정/삭제 버튼 로직 ⭐⭐
+            const isMyReview = review.user === CURRENT_USER_NICKNAME;
+            let actionButtonsHtml = '';
+
+            if (isMyReview) {
+                actionButtonsHtml = `
+                    <div class="review-actions">
+                        <button onclick="handleReviewEdit(${review.id})">수정</button>
+                        <button class="delete" onclick="handleReviewDelete(${review.id})">삭제</button>
+                    </div>
+                `;
+            }
+
+            // ⭐⭐ 별점 표시 HTML 추가 ⭐⭐
+            const starRatingHtml = review.rating ?
+                `<span class="star-display">${'★'.repeat(review.rating)}</span>` :
+                '';
+
+            item.innerHTML = `
+                <div class="review-header">
+                    <span class="review-user">${starRatingHtml} ${review.user} ${isMyReview ? '(나)' : ''}</span>
+                    <span class="review-date">${review.date}</span>
+                </div>
+                <p class="review-content">${review.content}</p>
+                ${actionButtonsHtml}
+            `;
+            listContainer.appendChild(item);
+        });
+
+        document.getElementById('review-count').textContent = totalReviews;
+        renderPagination(totalReviews, page);
+    }
+
+    // ⭐ 페이지네이션 컨트롤 렌더링 함수
+    function renderPagination(totalReviews, currentPage) {
+        const totalPages = Math.ceil(totalReviews / REVIEWS_PER_PAGE);
+        const controls = document.getElementById('pagination-controls');
+        const pageNumbersContainer = document.getElementById('page-numbers');
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+
+        if (totalPages <= 1) {
+            controls.style.display = 'none';
+            return;
+        }
+
+        controls.style.display = 'block';
+        pageNumbersContainer.innerHTML = '';
+
+        // 페이지 번호 그룹 계산 (1 2 3 4 5, 6 7 8 9 10...)
+        const pagesPerGroup = 5;
+        const currentGroup = Math.ceil(currentPage / pagesPerGroup);
+        const startPage = (currentGroup - 1) * pagesPerGroup + 1;
+        const endPage = Math.min(startPage + pagesPerGroup - 1, totalPages);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.textContent = i;
+            pageButton.className = i === currentPage ? 'active' : '';
+            pageButton.onclick = () => {
+                renderReviews(i);
+            };
+            pageNumbersContainer.appendChild(pageButton);
+        }
+
+        // 이전/다음 버튼 상태 업데이트
+        prevButton.disabled = currentPage === 1;
+        nextButton.disabled = currentPage === totalPages;
+
+        prevButton.onclick = () => {
+            if (currentPage > 1) {
+                renderReviews(currentPage - 1);
+            }
+        };
+
+        nextButton.onclick = () => {
+            if (currentPage < totalPages) {
+                renderReviews(currentPage + 1);
+            }
+        };
+    }
+
+    // ⭐⭐ 리뷰 수정 시뮬레이션 함수 ⭐⭐
+    function handleReviewEdit(reviewId) {
+        const reviewIndex = MOCK_ALL_REVIEWS.findIndex(r => r.id === reviewId);
+        if (reviewIndex !== -1) {
+            const currentContent = MOCK_ALL_REVIEWS[reviewIndex].content;
+            const currentRating = MOCK_ALL_REVIEWS[reviewIndex].rating;
+
+            // 프롬프트로 새 내용과 별점을 입력받기 (간단한 시뮬레이션)
+            const newContent = prompt(`리뷰 내용을 수정해주세요 (현재 별점: ${currentRating}점):`, currentContent);
+
+            if (newContent !== null && newContent.trim() !== "" && newContent.trim() !== currentContent.trim()) {
+                MOCK_ALL_REVIEWS[reviewIndex].content = newContent.trim() + " (수정됨)";
+
+                // 로컬 스토리지 데이터도 업데이트
+                const stadiumId = new URLSearchParams(window.location.search).get('id') || '1';
+                let localReviews = JSON.parse(localStorage.getItem(`reviews_${stadiumId}`)) || [];
+
+                const localIndex = localReviews.findIndex(r => r.id === reviewId);
+                if (localIndex !== -1) {
+                    localReviews[localIndex].content = MOCK_ALL_REVIEWS[reviewIndex].content;
+                    localReviews[localIndex].rating = currentRating; // 별점은 변경 없다고 가정
+                }
+                localStorage.setItem(`reviews_${stadiumId}`, JSON.stringify(localReviews));
+
+                renderReviews(currentPage); // UI 새로고침
+                alert("✅ 리뷰가 수정되었습니다.");
+            } else if (newContent !== null && newContent.trim() !== "") {
+                alert("수정된 내용이 없습니다.");
+            }
+        }
+    }
+
+    // ⭐⭐ 리뷰 삭제 시뮬레이션 함수 ⭐⭐
+    function handleReviewDelete(reviewId) {
+        if (confirm("정말로 이 리뷰를 삭제하시겠습니까?")) {
+            // MOCK_ALL_REVIEWS 에서 삭제
+            MOCK_ALL_REVIEWS = MOCK_ALL_REVIEWS.filter(r => r.id !== reviewId);
+
+            // 로컬 스토리지에서도 삭제
+            const stadiumId = new URLSearchParams(window.location.search).get('id') || '1';
+            let localReviews = JSON.parse(localStorage.getItem(`reviews_${stadiumId}`)) || [];
+            localReviews = localReviews.filter(r => r.id !== reviewId);
+            localStorage.setItem(`reviews_${stadiumId}`, JSON.stringify(localReviews));
+
+            renderReviews(1); // 1페이지로 돌아가서 UI 새로고침
+            alert("✅ 리뷰가 삭제되었습니다.");
+        }
+    }
+
 
     // --- (★페이지별★) 로직 실행 ---
     document.addEventListener('DOMContentLoaded', async () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const stadiumId = urlParams.get('id');
+        const stadiumId = urlParams.get('id') || '1';
 
-        if (!stadiumId) {
-            document.getElementById('stadium-name').textContent = "오류: 구장 ID가 필요합니다.";
-            return;
-        }
-
-        // ⭐ 인증 확인 (비회원 차단)
-        const accessToken = localStorage.getItem('accessToken');
-        if (!accessToken) {
-            // 이 페이지는 비회원도 볼 수 있게 하거나, 로그인 페이지로 리다이렉트 처리 필요
-            console.warn("비회원 접근: 상세 정보를 제한적으로 표시합니다.");
-        } else {
-            document.getElementById('profile-menu-toggle').style.display = 'block';
-        }
-
-
-        // ⭐ 더미 데이터 로드 (실제로는 백엔드 API 호출)
-        const MOCK_DATA = {
-            '1': {
-                name: "강남 풋살 아레나",
-                address: "서울 강남구 테헤란로 123",
-                contact: "02-1234-5678",
-                fee: "50,000원/시간",
-                size: "6 vs 6",
-                etcInfo: ["샤워실 완비", "넉넉한 주차장", "대기실 제공", "음료 자판기"]
-            },
-            '2': {
-                name: "수원 월드컵 구장",
-                address: "경기 수원시 팔달구 100",
-                contact: "031-9876-5432",
-                fee: "45,000원/시간",
-                size: "5 vs 5",
-                etcInfo: ["샤워실", "대기실"]
-            },
-            '3': {
-                name: "인천 문학 미니구장",
-                address: "인천 연수구 동춘동 50",
-                contact: "032-1111-2222",
-                fee: "40,000원/시간",
-                size: "5 vs 5",
-                etcInfo: ["주차장"]
-            }
+        // [주의] 실제 서비스에서는 여기의 더미 데이터를 제거하고 백엔드 API를 호출해야 합니다.
+        const DUMMY_DATA = {
+            name: "강남 풋살 아레나",
+            address: "서울 강남구 테헤란로 123",
+            contact: "02-1234-5678",
+            fee: "50,000원/시간",
+            size: "6 vs 6",
+            etcInfo: ["샤워실 완비", "넉넉한 주차장", "대기실 제공", "음료 자판기"]
         };
 
-        const data = MOCK_DATA[stadiumId] || MOCK_DATA['1'];
+        // DOM 업데이트 (구장 정보)
+        document.getElementById('stadium-name').textContent = `${DUMMY_DATA.name} (ID: ${stadiumId})`;
+        document.getElementById('stadium-address').textContent = DUMMY_DATA.address;
+        document.getElementById('stadium-contact').textContent = DUMMY_DATA.contact;
+        document.getElementById('stadium-fee').textContent = DUMMY_DATA.fee;
+        document.getElementById('stadium-size').textContent = DUMMY_DATA.size;
 
-        // DOM 업데이트
-        document.getElementById('stadium-name').textContent = data.name;
-        document.getElementById('stadium-address').textContent = data.address;
-        document.getElementById('stadium-contact').textContent = data.contact;
-        document.getElementById('stadium-fee').textContent = data.fee;
-        document.getElementById('stadium-size').textContent = data.size;
-
-        // 편의 시설 렌더링 (ERD: etc_info 반영)
         const amenitiesContainer = document.getElementById('stadium-amenities');
-        amenitiesContainer.innerHTML = data.etcInfo.map(item =>
+        amenitiesContainer.innerHTML = DUMMY_DATA.etcInfo.map(item =>
             `<span class="amenity-tag">${item}</span>`
         ).join('');
 
-        // 액션 버튼 링크 ID 업데이트
+        // 1. 더미 리뷰 데이터 로드
+        let baseReviews = generateMockReviews();
+
+        // 2. 로컬 스토리지에서 새 리뷰 로드 및 통합 (stadiumId를 인수로 사용)
+        const localReviews = JSON.parse(localStorage.getItem(`reviews_${stadiumId}`)) || [];
+
+        // 로컬 리뷰를 기존 목록 맨 앞에 추가하고, ID 중복 방지 처리
+        const allReviews = [...localReviews, ...baseReviews];
+        const uniqueReviews = allReviews.reduce((acc, review) => {
+            if (!acc.some(r => r.id === review.id)) {
+                // 새 리뷰(로컬)가 먼저 오도록 순서를 유지 (reduce 사용)
+                acc.push(review);
+            }
+            return acc;
+        }, []);
+
+        MOCK_ALL_REVIEWS = uniqueReviews; // 최종 리뷰 목록 설정
+
+        // 3. 초기 리뷰 목록 렌더링 (1페이지)
+        renderReviews(currentPage);
+
+        // 4. 액션 버튼 링크 ID 업데이트
         document.getElementById('btn-schedule').href = `/schedule?stadiumId=${stadiumId}`;
-        document.getElementById('btn-review').href = `/community?category=review&stadiumId=${stadiumId}`;
+
+        // ⭐⭐ 경로 수정 반영: /match/create 로 이동 및 ID 전달 ⭐⭐
+        document.getElementById('btn-create-match').href = `/match/create?stadiumId=${stadiumId}`;
+
+        // (나머지 인증 로직 유지)
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            document.getElementById('profile-menu-toggle').style.display = 'block';
+        }
     });
 </script>
