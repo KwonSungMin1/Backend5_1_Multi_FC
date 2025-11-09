@@ -1386,3 +1386,8 @@ body, html {
     gap: 15px;
     height: 70px;
 }
+.profile-icon {
+    align-items: center;
+    justify-content: center;
+    height: 40px; /* ✅ 균일 정렬 */
+}
