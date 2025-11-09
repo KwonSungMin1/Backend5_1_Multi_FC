@@ -302,26 +302,27 @@
         .quick-menu .header-icons {
             display: flex;
             align-items: center;
-            /* ⭐⭐⭐ 프로필과 햄버거 메뉴 사이 간격 조정 ⭐⭐⭐ */
-            gap: 15px; /* 햄버거와 프로필 사이 간격 */
+            /* ⭐⭐⭐ [수정] 햄버거와 프로필 사이 간격을 15px로 조정 ⭐⭐⭐ */
+            gap: 15px;
+            padding-right: 20px;
         }
         .quick-menu .header-icons button {
             background: none;
             border: none;
             color: #ecf0f1;
-            font-size: 24px; /* ⭐⭐⭐ [복구] 폰트 크기 24px로 유지 ⭐⭐⭐ */
+            font-size: 24px; /* 햄버거 메뉴 아이콘 크기는 24px 유지 */
             cursor: pointer;
-            margin-left: 0; /* gap으로 처리 */
+            margin-left: 0;
+            padding: 0;
         }
         .profile-icon {
-            font-size: 24px; /* ⭐⭐⭐ [수정] 프로필 로고 크기 24px로 복구 ⭐⭐⭐ */
+            font-size: 28px; /* ⭐⭐⭐ [수정] 프로필 로고 크기 28px로 확대 ⭐⭐⭐ */
             color: #ecf0f1;
             padding: 0;
             display: block;
-            margin-left: 0; /* gap으로 처리 */
         }
         .menu-toggle-btn {
-            font-size: 24px; /* ⭐⭐⭐ [복구] 햄버거 아이콘 크기 24px로 복구 ⭐⭐⭐ */
+            font-size: 24px; /* 햄버거 아이콘 크기는 24px 유지 */
             padding: 0;
         }
         .main-nav {
@@ -330,7 +331,7 @@
             top: 70px; /* 헤더 높이 아래 */
             right: 0;
             background: rgba(30, 45, 60, 0.95);
-            width: 250px;
+            width: 150px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.3);
             border-bottom-left-radius: 8px;
             overflow: hidden;
@@ -346,8 +347,7 @@
         }
         .main-nav ul li a {
             display: block;
-            /* ⭐⭐⭐ [수정] 좌우 패딩을 15px로 줄여 메뉴 창 크기를 줄입니다. ⭐⭐⭐ */
-            padding: 15px 15px;
+            padding: 15px 15px; /* 드롭다운 메뉴 아이템 좌우 패딩 유지 */
             color: #bdc3c7;
             text-decoration: none;
             font-size: 16px;
@@ -371,7 +371,7 @@
             display: none;
             position: absolute;
             top: 55px; /* 아이콘 아래 위치 */
-            right: 10px;
+            right: 20px; /* 퀵메뉴의 패딩에 맞춰 오른쪽 위치 조정 */
             background-color: #34495e;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -426,13 +426,13 @@
         }
         .notification-badge {
             position: absolute;
-            top: 0px; /* 24px 아이콘에 맞게 조정 */
+            top: -2px; /* 24px 아이콘에 맞게 조정 */
             right: 0px; /* 24px 아이콘에 맞게 조정 */
             background-color: #e74c3c;
             color: white;
             border-radius: 50%;
-            width: 8px; /* 크기 조정 */
-            height: 8px; /* 크기 조정 */
+            width: 8px;
+            height: 8px;
             padding: 0;
             font-size: 0;
             line-height: 1;
@@ -961,7 +961,7 @@
             if (mockReviews.count > 0) {
                 hasReviewNotif = true;
             }
-        } catch (error) { console.error("후기 알림 요청 중 오류:", error); }
+        } catch (error) { console.error("일정 요청 중 오류 발생:", error); }
     }
     async function checkUpcomingSchedules() {
         if (localStorage.getItem('hasReadSchedules') === 'true') {
