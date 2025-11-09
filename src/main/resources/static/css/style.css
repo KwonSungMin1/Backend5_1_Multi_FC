@@ -42,7 +42,7 @@ body, html {
 
 .quick-menu .logo a {
     font-size: 24px;
-    font-weight: 900;
+    font-weight: 500; /* ⭐⭐⭐ 수정: 900 -> 500 (굵기 제거) ⭐⭐⭐ */
     /* [복구] 텍스트: 어두운 색 */
     color: #2c3e50 !important;
     text-decoration: none;
@@ -237,6 +237,7 @@ body, html {
     background-image: url('futsal_main_background_clean.jpg');
     background-size: cover;
     background-position: center;
+    background-color: #f7f7f7;
 }
 
 .main-wrapper {
