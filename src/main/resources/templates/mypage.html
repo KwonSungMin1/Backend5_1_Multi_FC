@@ -415,15 +415,22 @@
 
         /* ⭐ [추가] 탭 컨텐츠 배경 투명도 조정 ⭐ */
         .tab-content {
-            background: transparent; /* 탭 컨텐츠 배경 투명하게 */
-            padding: 20px; /* 기존 패딩 유지 */
+            background: white; /* 탭 컨텐츠 배경 흰색으로 복구 */
+            padding: 20px;
             border-radius: 10px;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        /* 캘린더 탭 컨텐츠만 투명 유지 */
+        #tab-calendar {
+            background: transparent;
+            box-shadow: none;
         }
 
         .login-container {
-            background: rgba(255, 255, 255, 0.8); /* 로그인 컨테이너 배경도 투명도 조정 */
+            background: rgba(255, 255, 255, 0.9); /* 로그인 컨테이너 배경도 투명도 조정 */
             border-radius: 10px;
             padding: 30px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
@@ -464,19 +471,22 @@
             color: #333;
             text-decoration: none;
             font-size: 15px;
-            transition: background-color 0.2s ease, color 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, border-left 0.2s ease, padding-left 0.2s ease;
+            font-weight: 600 !important; /* ⭐ 굵게 설정 ⭐ */
         }
 
-        .main-menu li a:hover {
-            background-color: #f0f0f0;
+        /* ⭐⭐⭐ [핵심 수정] 햄버거 메뉴 하이라이트 스타일 통일 ⭐⭐⭐ */
+        .main-menu li a:hover, .main-menu li a.active {
+            background-color: rgba(108, 92, 231, 0.1);
             color: #6c5ce7;
+            border-left: 4px solid #6c5ce7;
+            padding-left: 16px;
         }
-
         .main-menu li a i {
             margin-right: 10px;
             color: #999;
         }
-        .main-menu li a:hover i {
+        .main-menu li a:hover i, .main-menu li a.active i {
             color: #6c5ce7;
         }
 
@@ -561,6 +571,13 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.03);
             backdrop-filter: blur(3px);
             -webkit-backdrop-filter: blur(3px);
+        }
+
+        /* 탭 버튼 색상 통일성 유지 */
+        .tab-buttons .tab-btn.active {
+            color: #6c5ce7;
+            border-bottom-color: #6c5ce7;
+            margin-bottom: -2px;
         }
     </style>
 </head>
