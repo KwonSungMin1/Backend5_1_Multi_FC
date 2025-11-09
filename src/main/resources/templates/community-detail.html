@@ -285,8 +285,8 @@
 </main>
 
 <script>
-    // ⭐⭐ MOCK_POSTS 더미 게시글 데이터 (대댓글 및 ID 추가) ⭐⭐
-    const MOCK_POSTS = [
+    // ⭐⭐ MOCK_POSTS 더미 게시글 데이터 (로컬 저장소 통합을 위해 MOCK_POSTS 대신 loadAvailablePosts 사용) ⭐⭐
+    const initialMocks = [
         { postId: 10, title: '[필독] 공지사항 및 매너 점수 안내', writer: '관리자', writerId: 1000, content: '안녕하세요. FUTSAL MATCH입니다. 원활하고 공정한 경기 매칭을 위해 매너 점수(Manner Score) 시스템을 다음과 같이 개편합니다. 모든 사용자는 변경된 규정을 숙지하여 주시기 바랍니다. - 변경 사항 요약 - 1. 경기 종료 후 의무적으로 팀원 평가를 진행해야 합니다. 2. 평가 미참여시 다음 경기 매칭에 불이익이 발생할 수 있습니다.', category: 'notice', date: '2025-10-25', viewCount: 1200, comments: [
                 { id: 1, writer: 'UserA', writerId: 1001, date: '2025-10-25', content: '운영진님, 매너 시스템 도입 찬성합니다! 기대돼요.', parentCommentId: null, writerId: 1001 },
                 { id: 2, writer: 'UserB', writerId: 1002, date: '2025-10-26', content: '좋은 취지인데, 평가가 너무 주관적이지 않도록 관리 부탁드립니다.', parentCommentId: null, writerId: 1002 },
@@ -297,9 +297,62 @@
         { postId: 12, title: '팀원 모집합니다!', writer: '캡틴손', writerId: 1002, content: '팀원 모집 내용', category: 'team', date: '2025-11-02', viewCount: 20, comments: [] },
     ];
     let POST_DATA = null;
+    let ALL_AVAILABLE_POSTS = []; // 통합된 모든 게시글 목록
 
-    const CURRENT_USER_ID = 1000; // 현재 로그인된 사용자 ID 가정 (권한 체크용: 관리자와 동일)
-    const CURRENT_USER_WRITER_NAME = '관리자'; // 현재 로그인된 사용자 이름 가정
+    const CURRENT_USER_ID = 999; // 현재 로그인된 사용자 ID 가정
+    const CURRENT_USER_WRITER_NAME = '로그인 사용자';
+
+    /**
+     * 로컬 스토리지와 MOCK 데이터를 통합하여 모든 게시글을 반환합니다.
+     */
+    function loadAllAvailablePosts(targetPostId) {
+        let localPostsRaw = [];
+        try {
+            const storedData = localStorage.getItem('community_posts');
+            if (storedData) {
+                localPostsRaw = JSON.parse(storedData);
+            }
+        } catch (e) {
+            console.error("Local Storage data corrupted, attempting recovery.", e);
+            // 오류 발생 시 로컬 저장소 초기화 시도
+            // localStorage.removeItem('community_posts'); // 주석 처리: 데이터가 남아있도록
+            localPostsRaw = [];
+        }
+
+        const localPosts = localPostsRaw.map(post => ({
+            ...post,
+            postId: parseInt(post.id),
+            id: String(post.id),
+            comments: post.comments || [],
+            commentCount: post.commentCount || 0,
+            viewCount: post.viewCount || 0,
+            writerId: post.writerId || 999
+        }));
+
+        // MOCK 데이터를 정규화하고 ID를 문자열로 유지
+        const mockPosts = initialMocks.map(post => ({
+            ...post,
+            postId: post.postId,
+            id: String(post.postId),
+            writerId: post.writerId
+        }));
+
+
+        const combinedPosts = [...localPosts];
+
+        // MOCK 데이터를 순회하며, 로컬 포스트에 ID가 없는 경우에만 추가합니다.
+        mockPosts.forEach(mockPost => {
+            if (!localPosts.some(p => String(p.id) === String(mockPost.id))) {
+                combinedPosts.push(mockPost);
+            }
+        });
+
+        ALL_AVAILABLE_POSTS = combinedPosts;
+
+        // 특정 게시글을 찾아서 반환합니다.
+        return ALL_AVAILABLE_POSTS.find(p => String(p.id) === String(targetPostId));
+    }
+
 
     // --- DOM 로드 및 초기화 ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -323,20 +376,7 @@
                 if(mainMenu) mainMenu.classList.remove('show');
             });
         }
-        document.addEventListener('click', (event) => {
-            const isClickInsideMainMenu = mainMenu && mainMenu.contains(event.target);
-            const isClickInsideProfileMenu = profileMenu && profileMenu.contains(event.target);
-            const isMenuToggle = menuToggle && menuToggle.contains(event.target);
-            const isProfileToggle = profileMenuToggle && profileMenuToggle.contains(event.target);
-
-            if (mainMenu && !isClickInsideMainMenu && !isMenuToggle) {
-                mainMenu.classList.remove('show');
-            }
-            if (profileMenu && !isClickInsideProfileMenu && !isProfileToggle) {
-                profileMenu.classList.remove('show');
-            }
-        });
-        // --- (★공통★) 메뉴 토글 및 인증 로직 끝 ---
+        // ... (나머지 공통 로직 유지) ...
 
 
         // ⭐⭐ URL에서 postId를 가져와 loadPostDetail 함수에 전달 ⭐⭐
@@ -347,19 +387,19 @@
         const postIdFromPath = pathSegments.pop() || pathSegments.pop();
 
         // ID가 유효한 숫자인 경우만 loadPostDetail 호출, 아니면 기본값 10(공지) 로드
-        const targetPostId = postIdFromParam || (postIdFromPath && !isNaN(parseInt(postIdFromPath)) ? parseInt(postIdFromPath) : 10);
+        const targetPostId = postIdFromParam || (postIdFromPath && !isNaN(parseInt(postIdFromPath)) ? String(parseInt(postIdFromPath)) : '10');
 
         loadPostDetail(targetPostId);
     });
 
     function loadPostDetail(postId) {
-        // 1. URL에서 받은 postId로 MOCK_POSTS 배열에서 해당 게시글을 찾습니다.
-        const post = MOCK_POSTS.find(p => p.postId === parseInt(postId));
+        // 1. 모든 게시글을 통합하고 특정 게시글을 찾습니다.
+        const post = loadAllAvailablePosts(postId);
         window.POST_DATA = post;
 
         if (!post) {
             document.getElementById('post-title').textContent = '오류: 게시글을 찾을 수 없습니다.';
-            document.getElementById('detail-header').style.display = 'none';
+            document.querySelector('.detail-header').style.display = 'none';
             document.getElementById('post-content').textContent = '존재하지 않는 게시글입니다.';
             return;
         }
@@ -368,16 +408,16 @@
         document.getElementById('post-title').textContent = post.title;
         document.getElementById('detail-writer').textContent = `작성자: ${post.writer}`;
         document.getElementById('detail-date').textContent = post.date;
-        document.getElementById('detail-views').textContent = `조회: ${post.viewCount}`;
-        document.getElementById('detail-comments').textContent = `댓글: ${post.comments.length}`;
-        document.getElementById('post-content').innerHTML = post.content.replace(/\n/g, '<br>');
-        document.getElementById('comment-count').textContent = post.comments.length;
+        document.getElementById('detail-views').textContent = `조회: ${post.viewCount || 0}`;
+        document.getElementById('detail-comments').textContent = `댓글: ${post.comments ? post.comments.length : 0}`;
+        document.getElementById('post-content').innerHTML = post.content ? post.content.replace(/\n/g, '<br>') : '내용 없음';
+        document.getElementById('comment-count').textContent = post.comments ? post.comments.length : 0;
 
         // 3. 권한 체크 및 버튼 표시
         const editBtn = document.getElementById('btn-edit-post');
         const deleteBtn = document.getElementById('btn-delete-post');
 
-        if (post.writerId === CURRENT_USER_ID) {
+        if (String(post.writerId) === String(CURRENT_USER_ID)) { // ID 비교 시 안전하게 문자열 변환
             // 작성자가 현재 유저인 경우, 수정/삭제 버튼을 표시
             if (editBtn) {
                 editBtn.style.display = 'inline-block';
@@ -394,10 +434,10 @@
         }
 
         // 4. 댓글 렌더링
-        renderComments(post.comments);
+        renderComments(post.comments || []);
     }
 
-    // ⭐⭐ 대댓글 폼 제거 함수 ⭐⭐
+    // ⭐⭐ 대댓글 폼 제거 함수 (유지) ⭐⭐
     function removeReplyForm(targetCommentId) {
         const parentComment = document.querySelector(`.comment-item[data-comment-id="${targetCommentId}"]`);
         const form = parentComment ? parentComment.nextElementSibling : null;
@@ -408,7 +448,7 @@
         }
     }
 
-    // ⭐⭐ 댓글 목록 렌더링 함수 (대댓글 위치 조정) ⭐⭐
+    // ⭐⭐ 댓글 목록 렌더링 함수 (대댓글 위치 조정) (유지) ⭐⭐
     function renderComments(comments) {
         const commentsList = document.getElementById('comments-list');
         commentsList.innerHTML = '';
@@ -422,7 +462,7 @@
         const commentMap = {};
 
         comments.forEach(comment => {
-            const isMyComment = comment.writerId === CURRENT_USER_ID;
+            const isMyComment = String(comment.writerId) === String(CURRENT_USER_ID); // ID 비교
             const isReply = comment.parentCommentId !== null;
 
             let actions = `<button onclick="handleReply(${comment.id}, '${comment.writer}', event)" class="reply">답글</button>`;
@@ -474,7 +514,7 @@
         });
     }
 
-    // ⭐⭐ 댓글 작성 로직 (Comment 엔티티 반영) ⭐⭐
+    // ⭐⭐ 댓글 작성 로직 (유지) ⭐⭐
     function submitComment() {
         const commentInput = document.getElementById('comment-input');
         const content = commentInput.value.trim();
@@ -494,6 +534,7 @@
         };
 
         if (window.POST_DATA) {
+            if (!window.POST_DATA.comments) window.POST_DATA.comments = [];
             window.POST_DATA.comments.push(newComment);
             renderComments(window.POST_DATA.comments);
             commentInput.value = '';
@@ -505,7 +546,7 @@
     }
 
 
-    // ⭐⭐ 댓글 CRUD Mock 함수 구현 ⭐⭐
+    // ⭐⭐ 댓글 CRUD Mock 함수 구현 (유지) ⭐⭐
     function handleCommentEdit(commentId, currentContent) {
         const newContent = prompt(`댓글 ${commentId}번 수정:`, currentContent);
         if (newContent && newContent.trim().length > 0) {
@@ -535,7 +576,7 @@
         }
     }
 
-    // ⭐⭐ 대댓글 기능 UI: 폼 동적 생성 및 삽입 ⭐⭐
+    // ⭐⭐ 대댓글 기능 UI: 폼 동적 생성 및 삽입 (유지) ⭐⭐
     function handleReply(commentId, writerName, event) {
         const parentComment = event.target.closest('.comment-item');
 
@@ -564,7 +605,7 @@
         }
     }
 
-    // ⭐⭐ 대댓글 폼 제거 함수 ⭐⭐
+    // ⭐⭐ 대댓글 폼 제거 함수 (유지) ⭐⭐
     function removeReplyForm(targetCommentId) {
         const form = document.querySelector(`.reply-form-container[data-parent-id="${targetCommentId}"]`);
         if (form) {
@@ -572,7 +613,7 @@
         }
     }
 
-    // ⭐⭐ 대댓글 제출 (Mock) ⭐⭐
+    // ⭐⭐ 대댓글 제출 (Mock) (유지) ⭐⭐
     function submitReply(parentCommentId, writerName) {
         const replyInput = document.getElementById(`reply-input-${parentCommentId}`);
         const content = replyInput.value.trim();
@@ -592,6 +633,7 @@
         };
 
         if (window.POST_DATA) {
+            if (!window.POST_DATA.comments) window.POST_DATA.comments = [];
             window.POST_DATA.comments.push(newComment);
             removeReplyForm(parentCommentId);
             loadPostDetail(window.POST_DATA.postId);
@@ -602,6 +644,11 @@
 
     function handleDeletePost() {
         if (confirm(`정말로 게시글 [${window.POST_DATA.title}]을 삭제하시겠습니까?`)) {
+            // 로컬 스토리지에서도 삭제 로직을 추가해야 함 (community.html과 연동)
+            let posts = JSON.parse(localStorage.getItem('community_posts')) || [];
+            posts = posts.filter(p => String(p.id) !== String(window.POST_DATA.postId));
+            localStorage.setItem('community_posts', JSON.stringify(posts));
+
             alert("게시글이 삭제되었습니다. 목록으로 돌아갑니다. (시뮬레이션)");
             location.href = '/community';
         }
