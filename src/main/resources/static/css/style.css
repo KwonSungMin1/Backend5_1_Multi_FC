@@ -27,7 +27,7 @@ body, html {
 .quick-menu {
     width: 100%;
     height: 70px;
-    padding: 0 40px;
+    padding: 15px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -40,19 +40,18 @@ body, html {
 }
 /* 🟣 로고 영역 */
 .quick-menu .logo a {
-    font-size: 24px;
-    font-weight: 500;
-    color: #2c3e50 !important;
+    font-size: 22px;
+    font-weight: 700;
+    color: #000; /* ✅ 진한 검정으로 통일 */
     text-decoration: none;
+    letter-spacing: 0.5px;
 }
 
 /* 🟣 헤더 오른쪽 아이콘 컨테이너 */
 .header-icons {
     display: flex;
     align-items: center;
-    gap: 15px;
-    height: 70px; /* ✅ 세로 정렬 통일 */
-    position: relative;
+    gap: 10px;
 }
 /* 👤 프로필 아이콘 통일 */
 .profile-icon {
