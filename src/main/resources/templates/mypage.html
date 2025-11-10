@@ -1085,11 +1085,6 @@
     }
 
     function bindScheduleToDetail(event, schedule) {
-        if (schedule.type === 'match') {
-            window.location.href = `/schedule/detail/${schedule.id}`;
-            return;
-        }
-
         clearDetailEditArea();
         event.currentTarget.classList.add('active');
 
@@ -1097,11 +1092,62 @@
         newScheduleTitle.style.display = 'none';
         scheduleTimeInput.style.display = 'block';
 
+        // 기본 값 세팅
         scheduleNameInput.value = schedule.title;
         scheduleContentInput.value = schedule.detail;
         selectedScheduleIdInput.value = schedule.id;
         scheduleTimeInput.value = schedule.time;
 
+        // ✅ [추가] 경기 일정일 경우 요약 정보 표시
+        if (schedule.type === 'match') {
+            scheduleNameInput.disabled = true;
+            scheduleContentInput.disabled = true;
+            saveBtn.disabled = true;
+            deleteBtn.disabled = true;
+
+            // 기존 내용 초기화 후 경기 요약 영역 생성
+            const summaryDiv = document.createElement('div');
+            summaryDiv.id = 'match-summary';
+            summaryDiv.style.marginTop = '10px';
+            summaryDiv.style.padding = '10px';
+            summaryDiv.style.border = '1px solid #ddd';
+            summaryDiv.style.borderRadius = '8px';
+            summaryDiv.style.background = 'rgba(255,255,255,0.8)';
+            summaryDiv.innerHTML = `
+    <strong>⚽ 경기 요약 정보</strong><br>
+    장소: ${schedule.detail.includes('장소') ? schedule.detail.split(',')[0].replace('장소:','').trim() : '미정'}<br>
+    시간: ${schedule.time}<br>
+    제목: ${schedule.title}<br><br>
+    <div style="text-align:center;">
+        <button id="go-to-match-btn"
+            style="background:#6c5ce7;
+                   color:white;
+                   border:none;
+                   padding:8px 15px;
+                   border-radius:6px;
+                   cursor:pointer;
+                   font-weight:600;
+                   transition:0.2s;">
+            상세 페이지로 이동
+        </button>
+    </div>
+`;
+
+            // 기존 요약 있으면 삭제
+            const existingSummary = document.getElementById('match-summary');
+            if (existingSummary) existingSummary.remove();
+
+            document.getElementById('fixed-detail-edit-area').appendChild(summaryDiv);
+
+            // 상세 페이지로 이동 버튼 이벤트
+            document.getElementById('go-to-match-btn').addEventListener('click', () => {
+                window.location.href = `/schedule/detail/${schedule.id}`;
+            });
+
+            return;
+        }
+
+        // ✅ [기존 개인 일정 처리 로직 유지]
         if (schedule.type === 'personal') {
             scheduleNameInput.disabled = false;
             scheduleContentInput.disabled = false;
