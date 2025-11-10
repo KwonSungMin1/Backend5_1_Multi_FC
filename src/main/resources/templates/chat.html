@@ -1359,28 +1359,24 @@
 
     // ★새로운 함수: 채팅방 유형에 따라 폼 필드를 업데이트
     function updateNewChatForm(type) {
-        const maxParticipantsGroup = document.getElementById('max-participants-group'); // 추가된 변수
+        const maxParticipantsGroup = document.getElementById('max-participants-group');
+        const recipientLabel = document.querySelector('label[for="new-chat-recipient"]'); // ★ 추가
 
         if (type === 'one-on-one') {
             recipientInputGroup.style.display = 'block';
-            maxParticipantsGroup.style.display = 'none'; // 1:1은 인원 설정 숨김
+            maxParticipantsGroup.style.display = 'none';
             chatFormInfo.textContent = '1:1 채팅은 상대방 닉네임이 필수입니다.';
             newChatRecipientInput.placeholder = '1:1 채팅할 상대방의 닉네임을 입력하세요';
+            recipientLabel.textContent = '상대방 닉네임 (1:1 채팅)'; // ★ 추가
 
         } else if (type === 'group') {
             recipientInputGroup.style.display = 'block';
-            maxParticipantsGroup.style.display = 'block'; // 그룹은 인원 설정 표시
+            maxParticipantsGroup.style.display = 'block';
             chatFormInfo.textContent = '그룹 채팅에 초대할 참여자 닉네임을 쉼표(,)로 입력하세요 (선택 사항).';
             newChatRecipientInput.placeholder = '초대할 닉네임 입력 (선택 사항)';
-
+            recipientLabel.textContent = '참여자 초대 (그룹 채팅)'; // ★ 추가
         }
-        /* else if (type === 'public') { // 전체 채팅 로직 삭제
-            recipientInputGroup.style.display = 'none';
-            maxParticipantsGroup.style.display = 'none';
-            chatFormInfo.textContent = '전체 채팅방은 누구나 참여 가능합니다.';
-        } */
 
-        // 폼 초기화 (헷갈리지 않도록)
         newChatRecipientInput.value = '';
     }
 
@@ -1686,7 +1682,7 @@
         // 초기 로드 후 UX 개선을 위해 1:1 채팅 폼 초기화
         updateNewChatForm('one-on-one');
 
-        // ⭐⭐ 초기 로드 시 인라인 프로필 창 숨김 ⭐⭐
+        // ⭐⭐ 초기 로드 시 인라인 프로필 창 숨기기 ⭐⭐
         openInlineProfileDetail(false);
     });
     // =====================
