@@ -106,44 +106,46 @@
         .action-button-group {
             text-align: center;
             margin-top: 30px;
-            grid-column: 1 / 2; /* 왼쪽 컬럼 하단에 위치 */
+            grid-column: 1 / 2;
             display: flex;
             justify-content: center;
-            gap: 15px; /* 버튼 간격 조정 */
+            gap: 15px;
         }
         .action-button-group a {
-            display: inline-block;
-            padding: 14px 28px; /* 패딩 증가 */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 200px; /* ✅ 두 버튼 동일한 고정 폭 */
+            height: 50px; /* ✅ 높이도 통일 */
             font-weight: 700;
-            border-radius: 30px; /* 더 둥글게 */
+            font-size: 16px;
+            border-radius: 30px;
             text-decoration: none;
             transition: all 0.3s ease;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            font-size: 16px;
-            flex-grow: 0;
-            flex-shrink: 0;
         }
         /* ⭐ 매치/일정 확인 버튼 (검정 계열) ⭐ */
         .btn-schedule {
-            background-color: #333; /* 검정색 */
+            background-color: #333;
             color: white;
-            border: 2px solid #1a1a1a; /* 진한 검정 테두리 */
+            border: 2px solid #1a1a1a;
         }
         .btn-schedule:hover {
-            background-color: #1a1a1a; /* 호버 시 더 진하게 */
+            background-color: #1a1a1a;
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* 검정 계열 그림자 */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
         /* ⭐ 경기 생성 버튼 (빨강 계열) ⭐ */
         .btn-create-match {
-            background-color: #e74c3c; /* 빨강색 */
+            background-color: #e74c3c;
             color: white;
-            border: 2px solid #c0392b; /* 진한 빨강 테두리 */
+            border: 2px solid #c0392b;
         }
         .btn-create-match:hover {
-            background-color: #c0392b; /* 호버 시 더 진하게 */
+            background-color: #c0392b;
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3); /* 빨강 계열 그림자 */
+            box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3);
         }
 
 
@@ -274,7 +276,6 @@
             <li><a href="/fields" class="active"><i class="fas fa-search"></i> 구장검색</a></li>
             <li><a href="/community"><i class="fas fa-users"></i> 커뮤니티</a></li>
             <li id="nav-chat-link-li"><a href="/chat" id="nav-chat-link"><i class="fas fa-comments"></i> 실시간채팅</a></li>
-            <li><a href="/schedule"><i class="fas fa-calendar-alt"></i> 일정</a></li>
         </ul>
     </nav>
 </header>
@@ -310,14 +311,6 @@
                     <span id="stadium-size">6 vs 6</span>
                 </div>
 
-                <div class="amenities-list">
-                    <strong>편의 시설 (ERD: etc_info)</strong>
-                    <div id="stadium-amenities">
-                        <span class="amenity-tag">샤워실 완비</span>
-                        <span class="amenity-tag">넉넉한 주차장</span>
-                        <span class="amenity-tag">대기실 제공</span>
-                    </div>
-                </div>
             </div>
 
         </div>
@@ -351,26 +344,46 @@
 </main>
 
 <script>
-    // --- (★공통★) 메뉴 토글 및 인증 로직 (유지) ---
+    // --- (★공통★) 메뉴 토글 및 인증 로직 수정 ---
     const menuToggle = document.getElementById('menu-toggle');
-    const mainMenu = document.getElementById('main-nav');
+    const mainMenu = document.getElementById('main-menu'); // ✅ 수정됨
     const profileMenuToggle = document.getElementById('profile-menu-toggle');
-    const profileMenu = document.getElementById('user-menu');
+    const profileMenu = document.getElementById('profile-menu'); // ✅ 수정됨
     const logoutButton = document.getElementById('logout-button');
 
+    // 햄버거 메뉴 열기/닫기
     if (menuToggle) {
         menuToggle.addEventListener('click', () => {
             mainMenu.classList.toggle('show');
             if (profileMenu) profileMenu.classList.remove('show');
         });
     }
+    // 프로필 아이콘 클릭 시 드롭다운 열기
     if (profileMenuToggle) {
         profileMenuToggle.addEventListener('click', () => {
-            if (profileMenu) profileMenu.classList.toggle('show');
+            profileMenu.classList.toggle('show');
             if (mainMenu) mainMenu.classList.remove('show');
         });
     }
-    // ... (나머지 공통 로직 및 JS 유지) ...
+    // 헤더 외부 클릭 시 닫기
+    document.addEventListener('click', (event) => {
+        const header = document.querySelector('header');
+        if (!header.contains(event.target)) {
+            mainMenu.classList.remove('show');
+            if (profileMenu) profileMenu.classList.remove('show');
+        }
+    });
+
+    // 로그아웃 기능
+    if (logoutButton) {
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('hasReadReviews');
+            localStorage.removeItem('hasReadSchedules');
+            window.location.href = '/login';
+        });
+    }
 
 
     // ⭐⭐ 리뷰 페이지네이션 구현 ⭐⭐
@@ -586,11 +599,6 @@
         document.getElementById('stadium-contact').textContent = DUMMY_DATA.contact;
         document.getElementById('stadium-fee').textContent = DUMMY_DATA.fee;
         document.getElementById('stadium-size').textContent = DUMMY_DATA.size;
-
-        const amenitiesContainer = document.getElementById('stadium-amenities');
-        amenitiesContainer.innerHTML = DUMMY_DATA.etcInfo.map(item =>
-            `<span class="amenity-tag">${item}</span>`
-        ).join('');
 
         // 1. 더미 리뷰 데이터 로드
         let baseReviews = generateMockReviews();
