@@ -364,15 +364,10 @@
 
     // ⭐⭐ 매치 참가 취소 로직 (API 호출 시뮬레이션) ⭐⭐
     function handleCancel() {
-        if (confirm("정말로 참여를 취소하시겠습니까?")) {
-            // ⭐ 백엔드 API 호출: DELETE /api/match/cancel/{matchId}
-            alert("참여 취소 요청이 완료되었습니다. (시뮬레이션)");
-            // 성공 시 UI 업데이트
-            isParticipating = false;
-            // 현재 사용자를 목록에서 제거
-            const updatedParticipants = MOCK_PARTICIPANTS.filter(p => p.id !== CURRENT_USER_ID);
-            renderParticipantList(updatedParticipants);
-        }
+        // 참여 취소 UI 갱신 (알림 제거)
+        isParticipating = false;
+        const updatedParticipants = MOCK_PARTICIPANTS.filter(p => p.id !== CURRENT_USER_ID);
+        renderParticipantList(updatedParticipants);
     }
 
 
@@ -417,16 +412,22 @@
 
         if (cancelButton) {
             cancelButton.addEventListener("click", () => {
+                // ✅ 먼저 confirm 실행
                 if (confirm("⚠️ 정말로 이 경기 참여를 취소하시겠습니까?")) {
+
+                    // ✅ matchId 추출
                     const matchId =
                         new URLSearchParams(window.location.search).get("id") ||
                         new URLSearchParams(window.location.search).get("matchId") ||
                         window.location.pathname.split("/").pop();
 
-                    // ✅ matches에서 제거
-                    let matches = JSON.parse(localStorage.getItem("matches")) || [];
+                    // ✅ 참가 상태 변경 및 UI 갱신
+                    handleCancel();
+
+                    // ✅ localStorage에서 match_schedules 삭제
+                    let matches = JSON.parse(localStorage.getItem("match_schedules")) || [];
                     matches = matches.filter((m) => String(m.id) !== String(matchId));
-                    localStorage.setItem("matches", JSON.stringify(matches));
+                    localStorage.setItem("match_schedules", JSON.stringify(matches));
 
                     // ✅ personalSchedules에서도 matchId 기반 삭제
                     let schedules = JSON.parse(localStorage.getItem("personalSchedules")) || [];
@@ -435,7 +436,7 @@
                     );
                     localStorage.setItem("personalSchedules", JSON.stringify(schedules));
 
-                    // ✅ 마이페이지 갱신 플래그
+                    // ✅ 캘린더 업데이트 플래그
                     localStorage.setItem("calendarUpdated", "true");
 
                     alert("✅ 참여가 취소되었습니다. 마이페이지 캘린더에서 일정이 제거됩니다.");
@@ -443,6 +444,8 @@
                 }
             });
         }
+
+        renderParticipantList(MOCK_PARTICIPANTS);
     });
 
 </script>

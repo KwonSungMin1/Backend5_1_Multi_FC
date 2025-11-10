@@ -1009,6 +1009,24 @@
 
                 detailList.appendChild(li);
             });
+
+            // ✅ 여기 추가: 새 개인 일정 등록 버튼
+            const addNewBtn = document.createElement('button');
+            addNewBtn.textContent = '+ 새 개인 일정 등록';
+            addNewBtn.style.marginTop = '10px';
+            addNewBtn.style.padding = '8px 12px';
+            addNewBtn.style.backgroundColor = '#2ecc71';
+            addNewBtn.style.color = 'white';
+            addNewBtn.style.border = 'none';
+            addNewBtn.style.borderRadius = '6px';
+            addNewBtn.style.cursor = 'pointer';
+            addNewBtn.style.width = '100%';
+            addNewBtn.onclick = (e) => {
+                e.stopPropagation();
+                setNewScheduleMode(); // 등록 모드로 전환
+            };
+            detailList.appendChild(addNewBtn);
+
             clearDetailEditArea();
 
         } else {
@@ -1229,7 +1247,14 @@
 
                     eventDiv.onclick = (e) => {
                         e.stopPropagation();
-                        alert(`${s.title}\n${s.detail}`);
+
+                        if (s.type === "match") {
+                            // ✅ 경기 일정일 경우 경기 상세 페이지로 이동
+                            window.location.href = `/schedule/detail/${s.id}`;
+                        } else {
+                            // ✅ 개인 일정일 경우 오른쪽 상세창 열기
+                            openDaySchedule(day, e);
+                        }
                     };
 
                     cell.appendChild(eventDiv);
