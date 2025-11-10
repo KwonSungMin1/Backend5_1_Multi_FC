@@ -579,6 +579,73 @@
             border-bottom-color: #6c5ce7;
             margin-bottom: -2px;
         }
+
+        /* --- 📅 캘린더 셀 시각 개선 --- */
+        .calendar-day-cell {
+            min-height: 85px; /* 일정이 적을 땐 높이 작게 */
+            max-height: 110px; /* 일정이 많을 땐 너무 커지지 않게 */
+            overflow: hidden;
+            padding: 6px 6px 4px 6px;
+            border-radius: 6px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+
+        /* 일정이 있는 날은 배경 강조 */
+        .calendar-day-cell.has-event {
+            background-color: rgba(108, 92, 231, 0.08);
+            border: 1px solid rgba(108, 92, 231, 0.15);
+        }
+
+        /* 캘린더 내 일정 블록 */
+        .calendar-event {
+            width: 100%;
+            border-radius: 4px;
+            font-size: 10px;
+            padding: 2px 3px;
+            margin-top: 3px;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 경기 일정 (보라색 계열) */
+        .calendar-event.match-schedule {
+            background-color: rgba(144, 77, 240, 0.85);
+            color: white;
+            font-weight: 500;
+        }
+
+        /* 개인 일정 (파란색 계열) */
+        .calendar-event.personal-schedule {
+            background-color: rgba(74, 144, 226, 0.85);
+            color: white;
+            font-weight: 500;
+        }
+
+        /* +N개 더보기 표시 */
+        .calendar-event.more-events {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px dashed rgba(108, 92, 231, 0.5);
+            color: #6c5ce7;
+            font-size: 10px;
+            font-weight: 600;
+            text-align: center;
+            padding: 2px 0;
+            width: 100%;
+            border-radius: 4px;
+            margin-top: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .calendar-event.more-events:hover {
+            background-color: rgba(108, 92, 231, 0.1);
+        }
+
     </style>
 </head>
 <body>
@@ -892,6 +959,54 @@
         { id: 4, year: 2025, month: 11, day: 10, time: "18:00", type: 'personal', title: '친구와 풋살', detail: "잠실 풋살장" }
     ];
 
+    // ✅ localStorage 데이터와 동기화되도록 수정
+    function loadSchedulesFromStorage() {
+        // localStorage에 저장된 데이터 불러오기
+        const matchData = JSON.parse(localStorage.getItem("matches")) || [];
+        const personalData = JSON.parse(localStorage.getItem("personalSchedules")) || [];
+
+        // localStorage에 저장된 match 데이터 변환 (month는 JS 기준 0~11로 변환)
+        const matchSchedules = matchData.map(m => {
+            const dateObj = new Date(m.date || m.datetime || "2025-11-01T00:00:00");
+            return {
+                id: m.id,
+                year: dateObj.getFullYear(),
+                month: dateObj.getMonth(),
+                day: dateObj.getDate(),
+                time: m.time || dateObj.toTimeString().slice(0, 5),
+                type: "match",
+                title: m.title || m.name || "경기 일정",
+                detail: m.location || "경기 장소 미정"
+            };
+        });
+
+        // 개인 일정
+        const personalSchedules = personalData.map(p => {
+            const dateObj = new Date(p.date || p.datetime || "2025-11-01T00:00:00");
+            return {
+                id: p.id,
+                year: dateObj.getFullYear(),
+                month: dateObj.getMonth(),
+                day: dateObj.getDate(),
+                time: p.time || dateObj.toTimeString().slice(0, 5),
+                type: "personal",
+                title: p.title || p.name || "개인 일정",
+                detail: p.detail || ""
+            };
+        });
+
+        // 더미 데이터 + 실제 localStorage 데이터 병합
+        const combined = [...MOCK_SCHEDULES, ...matchSchedules, ...personalSchedules];
+
+        // 중복 제거 (id 기준)
+        const unique = combined.filter(
+            (item, index, self) => index === self.findIndex((t) => t.id === item.id)
+        );
+
+        MOCK_SCHEDULES = unique;
+    }
+
+
     function openDaySchedule(day, event) {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth(); // 0부터 시작
@@ -1117,16 +1232,42 @@
             );
 
             if (schedulesToday.length > 0) {
-                schedulesToday.forEach(schedule => {
+                // 1️⃣ 최대 2개까지만 표시
+                const maxVisible = 2;
+                const visibleSchedules = schedulesToday.slice(0, maxVisible);
+
+                visibleSchedules.forEach(schedule => {
                     const eventDiv = document.createElement('div');
                     const eventClass = schedule.type === 'match' ? 'match-schedule' : 'personal-schedule';
                     eventDiv.className = `calendar-event ${eventClass}`;
-                    eventDiv.textContent = schedule.time;
+                    eventDiv.textContent = `${schedule.time}`;
                     eventDiv.title = schedule.title;
-                    eventDiv.onclick = (e) => e.stopPropagation();
+                    eventDiv.onclick = (e) => {
+                        e.stopPropagation();
+                        openDaySchedule(day, e); // 클릭 시 상세창 열기
+                    };
                     cell.appendChild(eventDiv);
                 });
+
+                // 2️⃣ 일정이 더 있으면 “+N 더보기” 표시
+                if (schedulesToday.length > maxVisible) {
+                    const moreDiv = document.createElement('div');
+                    moreDiv.className = 'calendar-event more-events';
+                    moreDiv.textContent = `+${schedulesToday.length - maxVisible}개 더보기`;
+                    moreDiv.style.backgroundColor = 'rgba(108, 92, 231, 0.15)';
+                    moreDiv.style.color = '#6c5ce7';
+                    moreDiv.style.textAlign = 'center';
+                    moreDiv.style.fontWeight = '600';
+                    moreDiv.style.border = '1px dashed #6c5ce7';
+                    moreDiv.style.cursor = 'pointer';
+                    moreDiv.onclick = (e) => {
+                        e.stopPropagation();
+                        openDaySchedule(day, e); // 클릭 시 해당 날짜 상세창으로 이동
+                    };
+                    cell.appendChild(moreDiv);
+                }
             }
+
             const dayToPass = day;
             cell.onclick = (e) => openDaySchedule(dayToPass, e);
 
@@ -1309,6 +1450,7 @@
             await checkUpcomingSchedules();
             updateGlobalBadge();
             fetchMyInfo(accessToken);
+            loadSchedulesFromStorage();
 
             if (daysGrid) {
                 renderCalendar();
@@ -1342,6 +1484,22 @@
             renderFriendList();
         }
     });
+
+    if (localStorage.getItem("calendarUpdated") === "true") {
+        localStorage.removeItem("calendarUpdated");
+        window.location.reload();
+    }
+
+    // ✅ 다른 페이지(예: 경기 취소)에서 돌아온 경우 자동 새로고침
+    if (localStorage.getItem("calendarUpdated") === "true") {
+        localStorage.removeItem("calendarUpdated");
+
+        // ⭐ 방법 1: 가장 확실하게 전체 새로고침
+        window.location.reload();
+
+        // ⭐ (선택) 방법 2: 만약 캘린더 객체가 변수로 있다면, 아래 코드로 대체 가능
+        // calendar.refetchEvents();
+    }
 
 </script>
 </body>

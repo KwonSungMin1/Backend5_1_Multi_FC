@@ -411,6 +411,40 @@
         // 더미 데이터 초기 렌더링
         renderParticipantList(MOCK_PARTICIPANTS);
     });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const cancelButton = document.getElementById("cancel-match-btn");
+
+        if (cancelButton) {
+            cancelButton.addEventListener("click", () => {
+                if (confirm("⚠️ 정말로 이 경기 참여를 취소하시겠습니까?")) {
+                    const matchId =
+                        new URLSearchParams(window.location.search).get("id") ||
+                        new URLSearchParams(window.location.search).get("matchId") ||
+                        window.location.pathname.split("/").pop();
+
+                    // ✅ matches에서 제거
+                    let matches = JSON.parse(localStorage.getItem("matches")) || [];
+                    matches = matches.filter((m) => String(m.id) !== String(matchId));
+                    localStorage.setItem("matches", JSON.stringify(matches));
+
+                    // ✅ personalSchedules에서도 matchId 기반 삭제
+                    let schedules = JSON.parse(localStorage.getItem("personalSchedules")) || [];
+                    schedules = schedules.filter(
+                        (s) => !s.matchId || String(s.matchId) !== String(matchId)
+                    );
+                    localStorage.setItem("personalSchedules", JSON.stringify(schedules));
+
+                    // ✅ 마이페이지 갱신 플래그
+                    localStorage.setItem("calendarUpdated", "true");
+
+                    alert("✅ 참여가 취소되었습니다. 마이페이지 캘린더에서 일정이 제거됩니다.");
+                    window.location.href = "/mypage?tab=calendar";
+                }
+            });
+        }
+    });
+
 </script>
 </body>
 </html>
