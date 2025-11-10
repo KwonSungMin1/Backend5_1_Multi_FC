@@ -351,35 +351,35 @@
 
             const newMatchData = {
                 id: NEW_MATCH_ID,
+                title: `${stadiumNameInput.value} 경기`,
                 date: matchDate,
-                startTime: startTime,
-                endTime: endTime,
+                start: startTime,
+                end: endTime,
                 location: stadiumNameInput.value,
                 creator: hostNameInput.value,
-                current: 1, // 개설자 포함
-                max: 10, // 기본 최대 인원
-                status: "open",
-                type: "팀 매칭" // 기본 타입 가정
+                status: "open"
             };
 
             // 기존 로컬 일정 목록을 불러와 새 일정을 추가합니다.
             let localMatchSchedules = [];
             try {
-                localMatchSchedules = JSON.parse(localStorage.getItem('match_schedules')) || [];
+                localMatchSchedules = JSON.parse(localStorage.getItem('matches')) || [];
             } catch (e) {
                 console.error("Local match schedules corrupted.", e);
                 localStorage.removeItem('match_schedules');
             }
 
             localMatchSchedules.unshift(newMatchData);
-            localStorage.setItem('match_schedules', JSON.stringify(localMatchSchedules));
+
+            // 마이페이지 캘린더에서 읽는 동일 키명으로 저장
+            localStorage.setItem('matches', JSON.stringify(localMatchSchedules));
 
 
             // ⭐ API 호출 시뮬레이션 및 리다이렉션 ⭐
             alert(`'${newMatchData.location}' 경기가 성공적으로 개설되었습니다!`);
 
             // 경기 상세 페이지로 리다이렉션
-            window.location.href = `/schedule/detail/${NEW_MATCH_ID}`;
+            window.location.href = `/stadium/detail?id=${hiddenStadiumIdInput.value}`;
         });
     });
 </script>

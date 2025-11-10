@@ -16,138 +16,62 @@
             min-height: 100vh;
         }
         .stadium-container {
-            /* max-width를 1200px로 확장하여 2열 공간 확보 */
             max-width: 1200px;
             margin: 0 auto;
             background: white;
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            display: grid; /* Grid 컨테이너 사용 */
-            grid-template-columns: 1fr 400px; /* 왼쪽(정보/맵) 1fr, 오른쪽(리뷰) 400px */
+            display: grid;
+            grid-template-columns: 1fr 400px;
             gap: 30px;
         }
         .stadium-title {
-            grid-column: 1 / -1; /* 제목은 전체 너비 차지 */
+            grid-column: 1 / -1;
             font-size: 32px;
             font-weight: 800;
-            color: #333; /* 검정색 유지 */
-            margin-bottom: 5px; /* Grid 간격이 있으므로 줄임 */
+            color: #333;
+            margin-bottom: 5px;
             border-bottom: 3px solid #6c5ce7;
             padding-bottom: 10px;
         }
-
-        /* ⭐⭐ 왼쪽 정보 및 맵 영역 (1열) ⭐⭐ */
-        .detail-left-column {
-            grid-column: 1 / 2;
-            display: flex;
-            flex-direction: column;
-        }
-
+        .detail-left-column { grid-column: 1 / 2; display: flex; flex-direction: column; }
         .map-area {
-            width: 100%;
-            height: 350px;
-            background-color: #eee;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: #888;
+            width: 100%; height: 350px; background-color: #eee;
+            border-radius: 10px; margin-bottom: 25px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: #888;
         }
-
-        /* ⭐⭐ 오른쪽 리뷰 영역 (2열) ⭐⭐ */
         .review-right-column {
             grid-column: 2 / 3;
-            grid-row: 2 / span 2; /* ⭐ 2번째 행부터 시작하여 오른쪽 열 전체를 차지 ⭐ */
+            grid-row: 2 / span 2;
             background: #fcfcfc;
             border-radius: 10px;
             padding: 20px;
             border: 1px solid #ddd;
-            max-height: 800px; /* 스크롤 높이 제한 */
+            max-height: 800px;
             overflow-y: auto;
         }
-
-        /* 구장 기본 정보 카드 스타일 */
         .info-card {
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 0; /* Left-column 내에서 간격 조정 */
+            border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-top: 0;
         }
-        .info-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        .info-item i {
-            width: 25px;
-            color: #6c5ce7;
-            margin-right: 10px;
-        }
-        .amenities-list {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            font-size: 14px;
-        }
-        .amenity-tag {
-            display: inline-block;
-            background: #e6e6ff;
-            color: #6c5ce7;
-            padding: 5px 10px;
-            border-radius: 20px;
-            margin-right: 8px;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
+        .info-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 16px; }
+        .info-item i { width: 25px; color: #6c5ce7; margin-right: 10px; }
         .action-button-group {
-            text-align: center;
-            margin-top: 30px;
-            grid-column: 1 / 2;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
+            text-align: center; margin-top: 30px;
+            grid-column: 1 / 2; display: flex; justify-content: center; gap: 15px;
         }
         .action-button-group a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 200px; /* ✅ 두 버튼 동일한 고정 폭 */
-            height: 50px; /* ✅ 높이도 통일 */
-            font-weight: 700;
-            font-size: 16px;
-            border-radius: 30px;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; width: 200px; height: 50px;
+            font-weight: 700; font-size: 16px; border-radius: 30px;
+            text-decoration: none; transition: all 0.3s ease;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        /* ⭐ 매치/일정 확인 버튼 (검정 계열) ⭐ */
-        .btn-schedule {
-            background-color: #333;
-            color: white;
-            border: 2px solid #1a1a1a;
-        }
-        .btn-schedule:hover {
-            background-color: #1a1a1a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        }
-        /* ⭐ 경기 생성 버튼 (빨강 계열) ⭐ */
-        .btn-create-match {
-            background-color: #e74c3c;
-            color: white;
-            border: 2px solid #c0392b;
-        }
-        .btn-create-match:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3);
-        }
-
+        .btn-schedule { background-color: #333; color: white; border: 2px solid #1a1a1a; }
+        .btn-schedule:hover { background-color: #1a1a1a; transform: translateY(-2px); }
+        .btn-create-match { background-color: #e74c3c; color: white; border: 2px solid #c0392b; }
+        .btn-create-match:hover { background-color: #c0392b; transform: translateY(-2px); }
 
         /* ⭐⭐ 리뷰 리스트 및 페이지네이션 스타일 ⭐⭐ */
         .review-right-column h2 {
@@ -262,7 +186,7 @@
                 <p>환영합니다!</p>
             </div>
             <ul>
-                <li><a href="/notifications" id="nav-notifications-link"><i class="fas fa-bell"></i> 알림 목록</a></li>
+                <li><a href="/notifications"><i class="fas fa-bell"></i> 알림 목록</a></li>
                 <li><a href="/mypage"><i class="fas fa-user"></i> 마이페이지</a></li>
                 <li><a href="/profile/edit"><i class="fas fa-user-edit"></i> 프로필 수정</a></li>
                 <li><a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> 로그아웃</a></li>
@@ -282,68 +206,39 @@
 
 <main class="stadium-main">
     <div class="stadium-container">
-
-        <h1 class="stadium-title" id="stadium-name">강남 풋살 아레나 (ID: <span th:text="${stadiumId}">1</span>)</h1>
+        <h1 class="stadium-title" id="stadium-name">구장 상세</h1>
 
         <div class="detail-left-column">
-
-            <div class="map-area" id="map">
-                (KakaoMap API가 표시될 구장 위치)
-            </div>
+            <div class="map-area" id="map">(KakaoMap API가 표시될 구장 위치)</div>
 
             <div class="info-card">
                 <h2>구장 기본 정보</h2>
-
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span id="stadium-address">서울 강남구 테헤란로 123</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-phone"></i>
-                    <span id="stadium-contact">02-1234-5678</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-won-sign"></i>
-                    <span id="stadium-fee">50,000원/시간</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-users"></i>
-                    <span id="stadium-size">6 vs 6</span>
-                </div>
-
+                <div class="info-item"><i class="fas fa-map-marker-alt"></i><span id="stadium-address"></span></div>
+                <div class="info-item"><i class="fas fa-phone"></i><span id="stadium-contact"></span></div>
+                <div class="info-item"><i class="fas fa-won-sign"></i><span id="stadium-fee"></span></div>
+                <div class="info-item"><i class="fas fa-users"></i><span id="stadium-size"></span></div>
             </div>
-
         </div>
 
+        <button id="cancel-participation">참여 취소</button>
+
         <div class="review-right-column">
-            <h2 style="font-size: 24px; color: #333; margin-bottom: 15px;">⭐ 구장 리뷰 (<span id="review-count">0</span>건)</h2>
-
-            <div id="review-list">
-            </div>
-
-            <div id="pagination-controls" class="pagination-controls" style="display:none;">
-                <button id="prev-page">&lt;</button>
-                <div id="page-numbers" style="display: inline;">
-                </div>
-                <button id="next-page">&gt;</button>
-            </div>
-
+            <h2>⭐ 구장 리뷰 (<span id="review-count">0</span>건)</h2>
+            <div id="review-list"></div>
         </div>
 
         <div class="action-button-group">
-            <a href="/schedule?stadiumId=1" class="btn-schedule" id="btn-schedule">
+            <a href="#" class="btn-schedule" id="btn-schedule">
                 <i class="fas fa-calendar-alt"></i> 매치/일정 확인
             </a>
-
-            <a href="/match/create" class="btn-create-match" id="btn-create-match">
+            <a href="#" class="btn-create-match" id="btn-create-match">
                 <i class="fas fa-plus-circle"></i> 경기 생성
             </a>
         </div>
-
-    </div>
-</main>
+    </div></main>
 
 <script>
+
     // --- (★공통★) 메뉴 토글 및 인증 로직 수정 ---
     const menuToggle = document.getElementById('menu-toggle');
     const mainMenu = document.getElementById('main-menu'); // ✅ 수정됨
@@ -579,27 +474,24 @@
 
 
     // --- (★페이지별★) 로직 실행 ---
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const stadiumId = urlParams.get('id') || '1';
-
+        const stadiumId = urlParams.get('stadiumId') || urlParams.get('id') || '1';
         // [주의] 실제 서비스에서는 여기의 더미 데이터를 제거하고 백엔드 API를 호출해야 합니다.
         const DUMMY_DATA = {
-            name: "강남 풋살 아레나",
-            address: "서울 강남구 테헤란로 123",
-            contact: "02-1234-5678",
-            fee: "50,000원/시간",
-            size: "6 vs 6",
-            etcInfo: ["샤워실 완비", "넉넉한 주차장", "대기실 제공", "음료 자판기"]
+            1: { name: "강남 풋살 아레나", address: "서울 강남구 테헤란로 123", contact: "02-1234-5678", fee: "50,000원/시간", size: "6 vs 6" },
+            2: { name: "수원 월드컵 구장", address: "경기 수원시 팔달구 월드컵로 240", contact: "031-987-6543", fee: "60,000원/시간", size: "5 vs 5" },
+            3: { name: "부산 해운대 풋살파크", address: "부산 해운대구 센텀중앙로 45", contact: "051-234-7890", fee: "55,000원/시간", size: "5 vs 5" }
         };
+        // ✅ 전달된 ID로 구장 데이터 선택 (없으면 기본 1번)
+        const stadiumData = DUMMY_DATA[stadiumId] || DUMMY_DATA[1];
 
-        // DOM 업데이트 (구장 정보)
-        document.getElementById('stadium-name').textContent = `${DUMMY_DATA.name} (ID: ${stadiumId})`;
-        document.getElementById('stadium-address').textContent = DUMMY_DATA.address;
-        document.getElementById('stadium-contact').textContent = DUMMY_DATA.contact;
-        document.getElementById('stadium-fee').textContent = DUMMY_DATA.fee;
-        document.getElementById('stadium-size').textContent = DUMMY_DATA.size;
-
+        // ✅ DOM 업데이트 (구장 정보)
+        document.getElementById('stadium-name').textContent = `${stadiumData.name} (ID: ${stadiumId})`;
+        document.getElementById('stadium-address').textContent = stadiumData.address;
+        document.getElementById('stadium-contact').textContent = stadiumData.contact;
+        document.getElementById('stadium-fee').textContent = stadiumData.fee;
+        document.getElementById('stadium-size').textContent = stadiumData.size;
         // 1. 더미 리뷰 데이터 로드
         let baseReviews = generateMockReviews();
 
@@ -610,7 +502,6 @@
         const allReviews = [...localReviews, ...baseReviews];
         const uniqueReviews = allReviews.reduce((acc, review) => {
             if (!acc.some(r => r.id === review.id)) {
-                // 새 리뷰(로컬)가 먼저 오도록 순서를 유지 (reduce 사용)
                 acc.push(review);
             }
             return acc;
@@ -627,10 +518,35 @@
         // ⭐⭐ 경로 수정 반영: /match/create 로 이동 및 ID 전달 ⭐⭐
         document.getElementById('btn-create-match').href = `/match/create?stadiumId=${stadiumId}`;
 
+        // ✅ 참여 취소 시 LocalStorage 일정 삭제 처리
+        const cancelButton = document.getElementById('cancel-participation');
+        if (cancelButton) {
+            cancelButton.addEventListener('click', () => {
+                if (confirm("참여를 취소하시겠습니까?")) {
+                    const matchId = new URLSearchParams(window.location.search).get('matchId')
+                        || window.location.pathname.split('/').pop();
+
+                    // ✅ 1. matches에서 해당 매치 삭제 (마이페이지 캘린더는 여기만 참조함)
+                    let storedMatches = JSON.parse(localStorage.getItem('matches')) || [];
+                    storedMatches = storedMatches.filter(m => m.id != matchId);
+                    localStorage.setItem('matches', JSON.stringify(storedMatches));
+
+                    // ✅ 2. 개인 일정은 그대로 두기 (personalSchedules 유지)
+                    // ⚠️ calendarEvents는 사용하지 않음 (mypage에서는 이 키 없음)
+
+                    // ✅ 3. 완료 후 마이페이지 캘린더로 이동
+                    alert("✅ 참여 취소가 완료되었습니다. (마이페이지 일정에서 제거됨)");
+                    window.location.href = "/mypage?tab=calendar";
+                }
+            });
+        }
+
+
         // (나머지 인증 로직 유지)
         const accessToken = localStorage.getItem('accessToken');
         if (accessToken) {
             document.getElementById('profile-menu-toggle').style.display = 'block';
         }
     });
+
 </script>
