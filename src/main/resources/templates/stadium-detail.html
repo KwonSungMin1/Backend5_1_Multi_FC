@@ -910,6 +910,24 @@
         localMatchSchedules.unshift(newMatchData);
         localStorage.setItem('match_schedules', JSON.stringify(localMatchSchedules));
 
+        // ✅ ➊ 개인 일정(personalSchedules)에도 자동 등록
+        const newCalendarEvent = {
+            id: NEW_MATCH_ID,
+            title: `${stadiumNameInput.value} 경기`,
+            date: matchDate,
+            time: `${startTime} ~ ${endTime}`,
+            type: "match",
+            matchId: NEW_MATCH_ID,
+            location: stadiumNameInput.value
+        };
+        let personalSchedules = JSON.parse(localStorage.getItem('personalSchedules')) || [];
+        personalSchedules.push(newCalendarEvent);
+        localStorage.setItem('personalSchedules', JSON.stringify(personalSchedules));
+
+        // ✅ ➋ 마이페이지 새로고침 시 즉시 반영되도록 플래그 설정
+        localStorage.setItem('calendarUpdated', 'true');
+
+
         alert(`'${newMatchData.location}' 경기가 성공적으로 개설되었습니다!`);
         openMatchModal(false);
 
