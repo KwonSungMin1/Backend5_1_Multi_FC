@@ -81,11 +81,18 @@
             font-size: 20px;
             color: #888;
         }
+
+        /* ⭐⭐ [추가] 경기 정보 제목 아래 여백 확보 ⭐⭐ */
+        .detail-left-column h3 {
+            margin-bottom: 20px; /* 제목과 첫 번째 항목 사이에 여백 추가 */
+        }
+
         .detail-info-item {
             display: flex;
             font-size: 16px;
             color: #333;
-            margin-bottom: 15px;
+            /* 항목 간 간격 증가 */
+            margin-bottom: 20px;
             align-items: center;
         }
         .detail-info-item i {
@@ -106,6 +113,29 @@
             padding-bottom: 10px;
             margin-bottom: 15px;
         }
+
+        /* ⭐⭐ [추가] 모두 선택/해제 컨트롤 스타일 ⭐⭐ */
+        .select-all-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+        .select-all-control input[type="checkbox"] {
+            transform: scale(1.3);
+            accent-color: #6c5ce7;
+            cursor: pointer;
+        }
+        .select-all-control label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+            cursor: pointer;
+        }
+        /* ⭐⭐ [추가 끝] ⭐⭐ */
 
         .participant-list {
             list-style: none;
@@ -214,7 +244,6 @@
 <main class="schedule-search-main">
     <div class="search-container">
 
-        <!-- 제목 + 경기 제거 버튼 -->
         <div class="search-title-bar">
             <h1 class="search-title" th:text="'경기 상세 정보 (ID: ' + ${matchId} + ')'">📅 일정 상세</h1>
             <button id="delete-match-btn" class="delete-match-btn" style="display:none;">
@@ -256,13 +285,18 @@
                 <div class="status-card">
                     <h3>참여 현황</h3>
                     <strong><span id="current-players">4</span> / <span id="max-players">10</span> 명</strong>
+
+                    <div id="select-all-wrapper" style="display:none;">
+                        <div class="select-all-control">
+                            <input type="checkbox" id="select-all-players" class="player-select-checkbox-all">
+                            <label for="select-all-players">참여자 모두 선택</label>
+                        </div>
+                    </div>
                     <ul class="participant-list" id="participant-list"></ul>
 
-                    <!-- 일반 참가자용 버튼 -->
                     <button id="join-match-btn" class="login-button join-button" style="display:none;" onclick="handleJoin()">참여하기</button>
                     <button id="cancel-match-btn" class="login-button join-button btn-cancel" style="display:none;">참여 취소</button>
 
-                    <!-- 호스트용 마감 버튼 -->
                     <button id="close-match-btn"
                             class="schedule-button join-button"
                             style="display:none; margin-top:8px;"
@@ -378,6 +412,9 @@
             cb.disabled = true;
         });
 
+        const selectAllWrapper = document.getElementById('select-all-wrapper');
+        if(selectAllWrapper) selectAllWrapper.style.display = 'none';
+
         if (joinBtn) {
             joinBtn.disabled = true;
             joinBtn.textContent = '마감된 경기입니다';
@@ -413,10 +450,28 @@
     // 호스트가 선택한 플레이어 ID들(주최자 제외)
     const selectedPlayerIds = new Set();
 
+
+    // ⭐⭐⭐ [추가] '모두 선택' 체크박스 상태 업데이트 함수 ⭐⭐⭐
+    function updateSelectAllCheckboxState(totalPlayers, selectedPlayersCount) {
+        const selectAllCheckbox = document.getElementById('select-all-players');
+        if (!selectAllCheckbox) return;
+
+        // 호스트를 제외한 총 선택 가능한 플레이어 수 (체크박스가 있는 요소 수)
+        const totalSelectable = totalPlayers;
+
+        if (totalSelectable > 0 && selectedPlayersCount === totalSelectable) {
+            selectAllCheckbox.checked = true;
+        } else {
+            selectAllCheckbox.checked = false;
+        }
+    }
+    // ⭐⭐⭐ [추가 끝] ⭐⭐⭐
+
     function renderParticipantList(participants) {
         const listEl = document.getElementById('participant-list');
         const currentPlayersEl = document.getElementById('current-players');
         const maxPlayersEl = document.getElementById('max-players');
+        const selectAllWrapper = document.getElementById('select-all-wrapper');
         listEl.innerHTML = '';
 
         const me = participants.find(u => u.id === CURRENT_USER_ID);
@@ -432,6 +487,15 @@
                 deleteBtn.style.display = 'none';
             }
         }
+
+        // ⭐⭐⭐ [수정] '모두 선택' 컨트롤 표시 ⭐⭐⭐
+        if (isHost && !isMatchClosed()) {
+            selectAllWrapper.style.display = 'flex';
+        } else {
+            selectAllWrapper.style.display = 'none';
+        }
+        // ⭐⭐⭐ [수정 끝] ⭐⭐⭐
+
 
         participants.forEach(user => {
             const listItem = document.createElement('li');
@@ -484,12 +548,17 @@
                 } else {
                     selectedPlayerIds.delete(uid);
                 }
+                // ⭐ [수정] 개별 선택 시, '모두 선택' 체크박스 상태 업데이트 ⭐
+                updateSelectAllCheckboxState(checkboxes.length, selectedPlayerIds.size);
                 updateCloseButtonState();
             });
         });
 
         updateJoinButtonState();
         updateCloseButtonState();
+
+        // ⭐ '모두 선택' 체크박스 초기 상태 설정 (로직 추가)
+        updateSelectAllCheckboxState(checkboxes.length, selectedPlayerIds.size);
 
         applyClosedUIIfNeeded();
     }
@@ -502,12 +571,14 @@
         const hostHint = document.getElementById('host-select-hint');
 
         const isLoggedIn = localStorage.getItem('accessToken') !== null;
+        const selectAllWrapper = document.getElementById('select-all-wrapper');
 
         if (!isLoggedIn) {
             joinBtn.style.display = 'none';
             cancelBtn.style.display = 'none';
             closeBtn.style.display = 'none';
             hostHint.style.display = 'none';
+            if(selectAllWrapper) selectAllWrapper.style.display = 'none';
             loginPrompt.style.display = 'block';
             return;
         }
@@ -522,6 +593,7 @@
         } else {
             closeBtn.style.display = 'none';
             hostHint.style.display = 'none';
+            if(selectAllWrapper) selectAllWrapper.style.display = 'none';
 
             if (isParticipating) {
                 joinBtn.style.display = 'none';
@@ -550,7 +622,7 @@
         }
 
         const selectedCount = selectedPlayerIds.size;
-        const totalSelectedIncludingHost = selectedCount + 1;
+        const totalSelectedIncludingHost = selectedCount + 1; // 호스트 포함 인원
 
         closeBtn.style.display = 'block';
         if (hostHint) hostHint.style.display = 'block';
@@ -723,7 +795,7 @@
             }
         }
 
-        // 취소 버튼 캘린더 연동
+        // --- 버튼 이벤트 핸들러 바인딩 ---
         const cancelButton = document.getElementById("cancel-match-btn");
         if (cancelButton) {
             cancelButton.addEventListener("click", () => {
@@ -759,6 +831,28 @@
         if (deleteMatchBtn) {
             deleteMatchBtn.addEventListener('click', handleDeleteMatch);
         }
+
+        // --- 모두 선택 로직 바인딩 ---
+        const selectAllCheckbox = document.getElementById('select-all-players');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                const playerCheckboxes = document.querySelectorAll('.player-select-checkbox');
+
+                selectedPlayerIds.clear(); // 기존 선택 초기화
+
+                playerCheckboxes.forEach(cb => {
+                    cb.checked = isChecked;
+                    if (isChecked) {
+                        const uid = parseInt(cb.dataset.userId, 10);
+                        selectedPlayerIds.add(uid);
+                    }
+                });
+
+                updateCloseButtonState(); // 마감 버튼 상태 업데이트
+            });
+        }
+
 
         // 초기 렌더링
         renderParticipantList(MOCK_PARTICIPANTS);
