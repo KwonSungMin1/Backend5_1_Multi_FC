@@ -82,9 +82,9 @@
             color: #888;
         }
 
-        /* ⭐⭐ [추가] 경기 정보 제목 아래 여백 확보 ⭐⭐ */
+        /* ⭐⭐ 경기 정보 제목 아래 여백 확보 ⭐⭐ */
         .detail-left-column h3 {
-            margin-bottom: 20px; /* 제목과 첫 번째 항목 사이에 여백 추가 */
+            margin-bottom: 20px;
         }
 
         .detail-info-item {
@@ -195,15 +195,40 @@
             margin-top: 8px;
         }
 
-        /* 🔥 마감 버튼 색상 제어 */
+        /* 🔥🔥🔥 [수정] 마감 버튼 디자인 통일 🔥🔥🔥 */
         #close-match-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: none;
+            margin-top: 15px !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #close-match-btn:not(.enabled) {
+            /* 비활성화 상태 */
             background-color: #ccc !important;
-            cursor: not-allowed;
+            color: #888 !important;
+            cursor: not-allowed !important;
+            box-shadow: none;
         }
+
         #close-match-btn.enabled:not(:disabled) {
-            background-color: #6c5ce7 !important;
-            cursor: pointer;
+            /* 활성화 상태: 보라색 그라데이션 적용 */
+            background: linear-gradient(135deg, #6c5ce7, #8e44ad) !important;
+            color: white !important;
+            cursor: pointer !important;
+            box-shadow: 0 6px 12px rgba(108, 92, 231, 0.4) !important;
         }
+
+        #close-match-btn.enabled:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(108, 92, 231, 0.5) !important;
+        }
+        /* 🔥🔥🔥 [수정 끝] 🔥🔥🔥 */
     </style>
 </head>
 <body>
