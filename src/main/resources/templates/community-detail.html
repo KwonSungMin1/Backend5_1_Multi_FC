@@ -542,7 +542,7 @@
             document.getElementById('detail-comments').textContent = `댓글: ${window.POST_DATA.comments.length}`;
         }
 
-        console.log("댓글 제출 시뮬레이션:", newComment);
+        console.log("댓글 제출", newComment);
     }
 
 
@@ -649,7 +649,7 @@
             posts = posts.filter(p => String(p.id) !== String(window.POST_DATA.postId));
             localStorage.setItem('community_posts', JSON.stringify(posts));
 
-            alert("게시글이 삭제되었습니다. 목록으로 돌아갑니다. (시뮬레이션)");
+            alert("게시글이 삭제되었습니다. 목록으로 돌아갑니다.");
             location.href = '/community';
         }
     }
