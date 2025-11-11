@@ -188,9 +188,6 @@
             <li><a href="/fields"><i class="fas fa-search"></i> 구장검색</a></li>
             <li><a href="/community"><i class="fas fa-users"></i> 커뮤니티</a></li>
             <li id="nav-chat-link-li"><a href="/chat" id="nav-chat-link"><i class="fas fa-comments"></i> 실시간채팅</a></li>
-            <li><a href="/schedule" class="active"><i class="fas fa-calendar-alt"></i> 일정</a></li>
-            <li><a href="/login" id="nav-login-link"><i class="fas fa-sign-in-alt"></i> 로그인</a></li>
-            <li style="display:none;"><a href="#" id="nav-logout-link"><i class="fas fa-sign-out-alt"></i> 로그아웃</a></li>
         </ul>
     </nav>
 </header>
@@ -232,17 +229,17 @@
     const navChatLinkElement = document.getElementById('nav-chat-link'); // 추가
     const navLoginLink = document.getElementById('nav-login-link');
     const navLogoutLink = document.getElementById('nav-logout-link');
-
+    const navLogoutLinkLi = navLogoutLink ? navLogoutLink.parentElement : null; // li 요소
 
     if (menuToggle) {
         menuToggle.addEventListener('click', () => {
             mainMenu.classList.toggle('show');
-            profileMenu.classList.remove('show');
+            if (profileMenu) profileMenu.classList.remove('show');
         });
     }
     if (profileMenuToggle) {
         profileMenuToggle.addEventListener('click', () => {
-            profileMenu.classList.toggle('show');
+            if (profileMenu) profileMenu.classList.toggle('show');
             mainMenu.classList.remove('show');
         });
     }
@@ -321,7 +318,7 @@
             id: schedule.id,
             date: schedule.date, // YYYY-MM-DD
             time: schedule.startTime,
-            location: schedule.stadiumName, // 장소 이름
+            location: schedule.location || schedule.stadiumName, // 장소 이름
             creator: schedule.creator,
             current: schedule.current,
             max: schedule.max,
@@ -363,63 +360,49 @@
         }
         noResults.style.display = 'none';
 
-        // 날짜별로 그룹화하기 위한 맵
-        const groupedMatches = matches.reduce((acc, match) => {
-            const dateKey = match.date;
-            if (!acc[dateKey]) {
-                acc[dateKey] = [];
-            }
-            acc[dateKey].push(match);
-            return acc;
-        }, {});
+        // 날짜별로 그룹화하기 위한 맵 (여기서는 그룹화 로직 없이 flat하게 렌더링)
 
-        // 날짜별 그룹을 순회하며 렌더링
-        for (const dateKey in groupedMatches) {
-            const dateMatches = groupedMatches[dateKey];
+        matches.forEach(match => {
+            const card = document.createElement('div');
+            const statusClass = match.status === 'closed' ? 'closed' : 'open';
+            const buttonDisabled = match.status === 'closed' ? 'disabled' : '';
+            const creatorDisplayName = match.creator || '로그인 사용자';
 
-            // 날짜 헤더 생성 (Optional: 현재는 카드 형태로만 구현)
+            // YYYY-MM-DD (HH:MM) 형태로 표시하기 위해 날짜와 시간을 합칩니다.
+            const displayDateTime = `${match.date} (${match.time})`;
 
-            dateMatches.forEach(match => {
-                const card = document.createElement('div');
-                const statusClass = match.status === 'closed' ? 'closed' : 'open';
-                const buttonDisabled = match.status === 'closed' ? 'disabled' : '';
+            card.className = `match-item-card ${statusClass}`;
+            card.dataset.matchId = match.id;
 
-                // YYYY-MM-DD (HH:MM) 형태로 표시하기 위해 날짜와 시간을 합칩니다.
-                const displayDateTime = `${match.date} (${match.time})`;
+            card.innerHTML = `
+                <div class="match-item-header">
+                    <span class="date">${displayDateTime}</span>
+                </div>
+                <div class="match-item-body">
+                    <p style="font-size: 14px; color: #6c5ce7; font-weight: 600; margin-bottom: 12px;">
+                        <i class="fas fa-crown" style="margin-right: 5px;"></i> 생성자: ${creatorDisplayName}
+                    </p>
+                    <p class="location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        ${match.location || 'undefined'}
+                    </p>
 
-                card.className = `match-item-card ${statusClass}`;
-                card.dataset.matchId = match.id;
-
-                card.innerHTML = `
-                    <div class="match-item-header">
-                        <span class="date">${displayDateTime}</span>
-                    </div>
-                    <div class="match-item-body">
-                        <p style="font-size: 14px; color: #6c5ce7; font-weight: 600; margin-bottom: 12px;">
-                            <i class="fas fa-crown" style="margin-right: 5px;"></i> 생성자: ${match.creator}
-                        </p>
-                        <p class="location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            ${match.location}
-                        </p>
-
-                        <p class="status">
-                            <i class="fas fa-users"></i>
-                            <span class="status-badge ${statusClass}">${match.status === 'open' ? '모집중' : '모집완료'}</span> ( ${match.current} / ${match.max}명 )
-                        </p>
-                        <a href="/schedule/detail/${match.id}" class="details-button ${buttonDisabled}" ${buttonDisabled ? 'onclick="return false;"' : ''}>
-                            ${match.status === 'closed' ? '마감 (상세보기)' : '상세보기'}
-                        </a>
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            });
-        }
+                    <p class="status">
+                        <i class="fas fa-users"></i>
+                        <span class="status-badge ${statusClass}">${match.status === 'open' ? '모집중' : '모집완료'}</span> ( ${match.current || 1} / ${match.max || 10}명 )
+                    </p>
+                    <a href="/schedule/detail/${match.id}" class="details-button ${buttonDisabled}" ${buttonDisabled ? 'onclick="return false;"' : ''}>
+                        ${match.status === 'closed' ? '마감 (상세보기)' : '상세보기'}
+                    </a>
+                </div>
+            `;
+            listContainer.appendChild(card);
+        });
     }
 
     // 검색 실행 함수 (API 호출 시뮬레이션)
     function performSearch() {
-        const keyword = document.getElementById('search-keyword').value.toLowerCase();
+        const keyword = document.getElementById('search-keyword') ? document.getElementById('search-keyword').value.toLowerCase() : '';
         const region = document.getElementById('filter-region').value;
         const date = document.getElementById('filter-date').value; // 날짜 필터 추가
         const status = document.getElementById('filter-status').value; // 상태 필터 추가
@@ -427,15 +410,15 @@
         const ALL_MATCHES = getAllMatches(); // 통합된 전체 목록 사용
 
         const filtered = ALL_MATCHES.filter(match => {
-            const nameMatch = match.location.toLowerCase().includes(keyword); // 구장 이름/지역은 location 필드에서 검색
+            const nameMatch = (match.location && match.location.toLowerCase().includes(keyword)); // 구장 이름/지역은 location 필드에서 검색
 
-            const regionFilter = region ? match.location.includes(region.replace('특별시', '').replace('광역시', '')) : true;
+            const regionFilter = region && region !== '전체지역' ? (match.location && match.location.includes(region.replace('특별시', '').replace('광역시', ''))) : true;
 
             const dateFilter = date ? match.date === date : true; // 날짜 일치
 
             const statusFilter = status ? match.status === status : true; // 상태 일치
 
-            return nameMatch && regionFilter && dateFilter && statusFilter;
+            return (nameMatch || keyword === '') && regionFilter && dateFilter && statusFilter;
         });
 
         renderMatchList(filtered);
@@ -446,18 +429,31 @@
     document.addEventListener('DOMContentLoaded', async () => {
         const accessToken = localStorage.getItem('accessToken');
         const currentPath = window.location.pathname;
+        const profileToggle = document.getElementById('profile-menu-toggle');
+        const navLogin = document.getElementById('nav-login-link');
+        const navLogout = document.getElementById('nav-logout-link');
 
-        // ⭐⭐ 회원 전용 페이지 접근 차단 로직 ⭐⭐
-        if (!accessToken) {
-            alert("❌ 회원 전용 페이지입니다.\n로그인 후에 이용하실 수 있습니다.");
-            localStorage.setItem('redirectAfterLogin', currentPath);
-            window.location.href = '/login';
-            return;
+        // ⭐⭐ 1. 인증 및 메뉴 상태 처리 ⭐⭐
+        if (accessToken) {
+            // [회원일 때]
+            if (profileToggle) profileToggle.style.display = 'block';
+            if (navLogin) navLogin.parentElement.style.display = 'none';
+            if (navLogout) navLogout.parentElement.style.display = 'list-item';
+        } else {
+            // [비회원일 때]
+            if (profileToggle) profileToggle.style.display = 'none';
+            if (navLogin) navLogin.parentElement.style.display = 'list-item';
+            if (navLogout) navLogout.parentElement.style.display = 'none';
+
+            // 비회원일 경우, 로그인 필요 알림을 띄우고 리다이렉트 (선택사항이나, 이전 로직을 따라 유지)
+            // alert("❌ 회원 전용 페이지입니다.\n로그인 후에 이용하실 수 있습니다.");
+            // localStorage.setItem('redirectAfterLogin', currentPath);
+            // window.location.href = '/login';
         }
 
-        // ... (UI 설정 및 알림 로직 유지) ...
+        // --- (추가적인 알림 로직은 간소화) ---
 
-        // 검색 필터 초기화 및 이벤트 바인딩
+        // 2. 검색 필터 초기화 및 이벤트 바인딩
         const dateFilter = document.getElementById('filter-date');
         if (dateFilter) {
             // 오늘 날짜 기본값 설정
@@ -472,7 +468,7 @@
 
         const regionFilter = document.getElementById('filter-region');
 
-        // 1. 지역 옵션을 채웁니다.
+        // 3. 지역 옵션을 채웁니다.
         METRO_CITIES.forEach(city => {
             const option = document.createElement('option');
             option.value = city.value;
@@ -480,11 +476,11 @@
             regionFilter.appendChild(option);
         });
 
-        // 초기 로드 시 전체 목록 표시
+        // 4. 초기 로드 시 전체 목록 표시
         const initialMatches = getAllMatches();
         renderMatchList(initialMatches);
 
-        // URL에 stadiumId 쿼리가 있으면 해당 구장으로 필터링된 검색을 실행합니다.
+        // 5. URL에 stadiumId 쿼리가 있으면 해당 구장으로 필터링된 검색을 실행합니다.
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('stadiumId')) {
             performSearch();
