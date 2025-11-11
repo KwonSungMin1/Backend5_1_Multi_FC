@@ -956,23 +956,28 @@
                 time: (m.time || m.startTime || "").split("~")[0].trim(),
                 type: "match", // ✅ 경기 일정 (보라색)
                 title: m.title || m.location || "경기 일정",
-                detail: m.location || "구장 미정"
+                detail: m.location || "구장 미정",
+                matchId: m.id // 경기 ID도 저장 (취소 로직용)
             };
         });
 
-        const personalSchedules = personalData.map(p => {
-            const dateObj = new Date(p.date || "2025-11-01T00:00:00");
-            return {
-                id: p.id,
-                year: dateObj.getFullYear(),
-                month: dateObj.getMonth(),
-                day: dateObj.getDate(),
-                time: (p.time || "").split("~")[0].trim(),
-                type: "personal", // ✅ 개인 일정 (파란색)
-                title: p.title || "개인 일정",
-                detail: p.detail || ""
-            };
-        });
+        // ⭐⭐⭐ 핵심 수정: personalSchedules에서 type이 'personal'인 항목만 필터링합니다. ⭐⭐⭐
+        const personalSchedules = personalData
+            .filter(p => p.type === 'personal') // 순수 개인 일정만 필터링
+            .map(p => {
+                const dateObj = new Date(p.date || "2025-11-01T00:00:00");
+                return {
+                    id: p.id,
+                    year: dateObj.getFullYear(),
+                    month: dateObj.getMonth(),
+                    day: dateObj.getDate(),
+                    time: (p.time || "").split("~")[0].trim(),
+                    type: "personal", // ✅ 개인 일정 (파란색)
+                    title: p.title || "개인 일정",
+                    detail: p.detail || "",
+                    matchId: null
+                };
+            });
 
         MOCK_SCHEDULES = [...matchSchedules, ...personalSchedules];
     }
@@ -983,7 +988,7 @@
 
         const schedulesToday = MOCK_SCHEDULES.filter(s =>
             s.year === year && s.month === month && s.day === day
-        );
+        ).sort((a, b) => a.time.localeCompare(b.time)); // 시간 순으로 정렬
 
         detailDateTitle.textContent = `${month + 1}월 ${day}일 일정`;
         detailList.innerHTML = '';
@@ -1057,6 +1062,10 @@
         scheduleContentInput.disabled = false;
         scheduleNameInput.placeholder = "일정명 (필수)";
         scheduleContentInput.placeholder = "세부 내용 (선택)";
+
+        // 매치 상세 요약 제거
+        const existingSummary = document.getElementById('match-summary');
+        if (existingSummary) existingSummary.remove();
     }
 
     function clearDetailEditArea() {
@@ -1082,6 +1091,10 @@
         scheduleContentInput.placeholder = "일정을 선택하거나, 경기는 상세보기를 이용하세요.";
 
         detailList.querySelectorAll('li').forEach(li => li.classList.remove('active'));
+
+        // 매치 상세 요약 제거
+        const existingSummary = document.getElementById('match-summary');
+        if (existingSummary) existingSummary.remove();
     }
 
     function bindScheduleToDetail(event, schedule) {
@@ -1098,14 +1111,23 @@
         selectedScheduleIdInput.value = schedule.id;
         scheduleTimeInput.value = schedule.time;
 
-        // ✅ [추가] 경기 일정일 경우 요약 정보 표시
+        // ✅ [수정된 로직]: 경기 일정일 경우 요약 정보 표시 및 수정 필드 비활성화
         if (schedule.type === 'match') {
+
+            // 필드 상태 변경: 경기 일정은 수정 불가능하게 만듦
             scheduleNameInput.disabled = true;
             scheduleContentInput.disabled = true;
+            scheduleTimeInput.disabled = true; // 시간 수정 불가능
+
             saveBtn.disabled = true;
             deleteBtn.disabled = true;
+            saveBtn.style.backgroundColor = 'rgba(204, 204, 204, 0.7)';
+            deleteBtn.style.backgroundColor = 'rgba(204, 204, 204, 0.7)';
 
-            // 기존 내용 초기화 후 경기 요약 영역 생성
+            scheduleNameInput.placeholder = "경기 일정은 수정이 불가합니다.";
+            scheduleContentInput.placeholder = "경기 일정은 수정이 불가합니다.";
+
+            // Match Summary를 위한 DOM 생성
             const summaryDiv = document.createElement('div');
             summaryDiv.id = 'match-summary';
             summaryDiv.style.marginTop = '10px';
@@ -1114,34 +1136,28 @@
             summaryDiv.style.borderRadius = '8px';
             summaryDiv.style.background = 'rgba(255,255,255,0.8)';
             summaryDiv.innerHTML = `
-    <strong>⚽ 경기 요약 정보</strong><br>
-    장소: ${schedule.detail.includes('장소') ? schedule.detail.split(',')[0].replace('장소:','').trim() : '미정'}<br>
-    시간: ${schedule.time}<br>
-    제목: ${schedule.title}<br><br>
-    <div style="text-align:center;">
-        <button id="go-to-match-btn"
-            style="background:#6c5ce7;
-                   color:white;
-                   border:none;
-                   padding:8px 15px;
-                   border-radius:6px;
-                   cursor:pointer;
-                   font-weight:600;
-                   transition:0.2s;">
-            상세 페이지로 이동
-        </button>
-    </div>
-`;
-
-            // 기존 요약 있으면 삭제
-            const existingSummary = document.getElementById('match-summary');
-            if (existingSummary) existingSummary.remove();
-
+                <strong>⚽ 경기 요약 정보</strong><br>
+                장소: ${schedule.detail.includes('장소') ? schedule.detail.split(',')[0].replace('장소:', '').trim() : schedule.title}<br>
+                시간: ${schedule.time}<br>
+                <div style="text-align:center; margin-top: 10px;">
+                    <button id="go-to-match-btn"
+                        style="background:#6c5ce7;
+                               color:white;
+                               border:none;
+                               padding:8px 15px;
+                               border-radius:6px;
+                               cursor:pointer;
+                               font-weight:600;
+                               transition:0.2s;">
+                        상세 페이지로 이동
+                    </button>
+                </div>
+            `;
             document.getElementById('fixed-detail-edit-area').appendChild(summaryDiv);
 
             // 상세 페이지로 이동 버튼 이벤트
             document.getElementById('go-to-match-btn').addEventListener('click', () => {
-                window.location.href = `/schedule/detail/${schedule.id}`;
+                window.location.href = `/schedule/detail/${schedule.matchId}`;
             });
 
             return;
@@ -1151,6 +1167,8 @@
         if (schedule.type === 'personal') {
             scheduleNameInput.disabled = false;
             scheduleContentInput.disabled = false;
+            scheduleTimeInput.disabled = false; // 시간 수정 가능
+
             saveBtn.disabled = false;
             saveBtn.textContent = "저장";
             saveBtn.style.backgroundColor = 'rgba(74, 144, 226, 0.85)';
@@ -1180,8 +1198,12 @@
         const selectedMonth = parseInt(selectedDateParts[1]) - 1; // month는 0부터 시작
         const selectedDay = parseInt(selectedDateParts[2]);
 
-        if (!id) { // 등록 (ID가 없을 때)
+        // 1. 로컬 스토리지 데이터 로드
+        let personalSchedules = JSON.parse(localStorage.getItem("personalSchedules")) || [];
+
+        if (!id || saveBtn.getAttribute('data-mode') === 'add') { // 등록 (ID가 없거나 등록 모드일 때)
             const newId = Date.now();
+            const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
 
             const newSchedule = {
                 id: newId,
@@ -1191,24 +1213,31 @@
                 time: newTime,
                 type: 'personal',
                 title: newTitle,
-                detail: newDetail
+                detail: newDetail,
+                matchId: null,
+                date: dateStr // 로컬 스토리지 저장을 위한 date 필드 추가
             };
 
-            MOCK_SCHEDULES.push(newSchedule);
+            // 2. 로컬 스토리지에 새 일정 추가
+            personalSchedules.push(newSchedule);
             alert(`✅ 새 개인 일정이 등록되었습니다!`);
 
         } else { // 수정 (ID가 있을 때)
-            const targetIndex = MOCK_SCHEDULES.findIndex(s => s.id === parseInt(id));
+            const targetIndex = personalSchedules.findIndex(s => s.id === parseInt(id));
             if (targetIndex !== -1) {
-                MOCK_SCHEDULES[targetIndex].title = newTitle;
-                MOCK_SCHEDULES[targetIndex].detail = newDetail;
-                MOCK_SCHEDULES[targetIndex].time = newTime;
-                MOCK_SCHEDULES[targetIndex].year = selectedYear;
-                MOCK_SCHEDULES[targetIndex].month = selectedMonth;
-                MOCK_SCHEDULES[targetIndex].day = selectedDay;
+                // 2. 로컬 스토리지 데이터 수정
+                personalSchedules[targetIndex].title = newTitle;
+                personalSchedules[targetIndex].detail = newDetail;
+                personalSchedules[targetIndex].time = newTime;
+
+                // 날짜 정보는 수정 탭에서 변경 불가하므로 유지
+
                 alert(`✅ 개인 일정이 수정되었습니다! ID: ${id}`);
             }
         }
+
+        // 3. 로컬 스토리지 저장 및 캘린더 업데이트
+        localStorage.setItem("personalSchedules", JSON.stringify(personalSchedules));
         renderCalendar();
         fixedDetailWindow.style.display = 'none';
     });
@@ -1218,10 +1247,16 @@
 
         if (confirm("정말로 이 일정을 삭제하시겠습니까?")) {
             const id = selectedScheduleIdInput.value;
-            const initialLength = MOCK_SCHEDULES.length;
-            MOCK_SCHEDULES = MOCK_SCHEDULES.filter(s => s.id !== parseInt(id));
 
-            if (MOCK_SCHEDULES.length < initialLength) {
+            // 1. 로컬 스토리지에서 삭제
+            let personalSchedules = JSON.parse(localStorage.getItem("personalSchedules")) || [];
+            const initialLength = personalSchedules.length;
+
+            personalSchedules = personalSchedules.filter(s => s.id !== parseInt(id));
+
+            if (personalSchedules.length < initialLength) {
+                // 2. 로컬 스토리지 저장 및 캘린더 업데이트
+                localStorage.setItem("personalSchedules", JSON.stringify(personalSchedules));
                 alert(`✅ 개인 일정이 삭제되었습니다! ID: ${id}`);
                 renderCalendar();
                 fixedDetailWindow.style.display = 'none';
@@ -1230,6 +1265,9 @@
     });
 
     function renderCalendar() {
+        // [수정] 캘린더를 렌더링하기 전에, 로컬 스토리지 데이터로 MOCK_SCHEDULES를 업데이트
+        loadSchedulesFromStorage();
+
         const daysGrid = document.getElementById("calendar-days-grid");
         if (!daysGrid) return;
 
@@ -1279,7 +1317,7 @@
             // 일정 표시
             const schedulesToday = MOCK_SCHEDULES.filter(
                 (s) => s.year === year && s.month === month && s.day === day
-            );
+            ).sort((a, b) => a.time.localeCompare(b.time)); // 시간 순으로 정렬
 
             if (schedulesToday.length > 0) {
                 const visible = schedulesToday.slice(0, 2);
@@ -1289,18 +1327,13 @@
                         "calendar-event " +
                         (s.type === "match" ? "match-schedule" : "personal-schedule");
                     const timeText = s.time?.split("~")[0]?.trim() || "";
-                    eventDiv.textContent = timeText;
+                    eventDiv.textContent = `${timeText} ${s.title.split(' ')[0]}`; // 시간 + 제목 앞부분
 
                     eventDiv.onclick = (e) => {
                         e.stopPropagation();
 
-                        if (s.type === "match") {
-                            // ✅ 경기 일정일 경우 경기 상세 페이지로 이동
-                            window.location.href = `/schedule/detail/${s.id}`;
-                        } else {
-                            // ✅ 개인 일정일 경우 오른쪽 상세창 열기
-                            openDaySchedule(day, e);
-                        }
+                        // [수정된 로직] 경기 일정(match)이더라도 openDaySchedule을 호출
+                        openDaySchedule(day, e);
                     };
 
                     cell.appendChild(eventDiv);
