@@ -217,6 +217,16 @@
 </main>
 
 <script>
+    // ⭐⭐ [추가] DOMContentLoaded 이전에 헤더 닉네임 로딩 함수 정의 및 실행 (최우선 실행) ⭐⭐
+    (function loadHeaderNickname() {
+        const usernameSpan = document.getElementById('user-menu-username');
+        if (usernameSpan) {
+            // 'userNickname' 키의 값을 가져와서 설정합니다.
+            usernameSpan.textContent = localStorage.getItem('userNickname') || '사용자';
+        }
+    })();
+    // ⭐⭐ [추가 끝] ⭐⭐
+
     // --- (★공통★) 메뉴 토글 로직 (유지) ---
     const menuToggle = document.getElementById('menu-toggle');
     const mainMenu = document.getElementById('main-menu');

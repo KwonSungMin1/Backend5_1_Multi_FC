@@ -226,6 +226,16 @@
 </main>
 
 <script>
+    // ⭐⭐ [추가] DOMContentLoaded 이전에 헤더 닉네임 로딩 함수 정의 및 실행 (최우선 실행) ⭐⭐
+    (function loadHeaderNickname() {
+        const usernameSpan = document.getElementById('user-menu-username');
+        if (usernameSpan) {
+            // 'userNickname' 키의 값을 가져와서 설정합니다.
+            usernameSpan.textContent = localStorage.getItem('userNickname') || '사용자';
+        }
+    })();
+    // ⭐⭐ [추가 끝] ⭐⭐
+
     // --- (★공통★) 메뉴 토글 및 로그아웃 로직 (유지) ---
     const menuToggle = document.getElementById('menu-toggle');
     const mainMenu = document.getElementById('main-menu');
@@ -496,6 +506,13 @@
         const profileIcon = document.getElementById('profile-menu-toggle');
         const userMenuName = document.getElementById('user-menu-username');
 
+        // ⭐⭐ 닉네임 업데이트 ⭐⭐
+        if (userMenuName) {
+            userMenuName.textContent = localStorage.getItem('userNickname') || '사용자';
+        }
+        // ⭐⭐ [수정 끝] ⭐⭐
+
+
         // ⭐⭐ 회원 전용 페이지 접근 차단 로직 ⭐⭐
         if (!accessToken) {
             alert("❌ 회원 전용 페이지입니다.\n로그인 후 이용 가능합니다.");
@@ -508,7 +525,6 @@
         if (accessToken) {
             // ✅ 로그인 상태 설정
             if (profileIcon) profileIcon.style.display = 'flex';
-            if (userMenuName) userMenuName.textContent = localStorage.getItem('username') || '사용자';
 
             // ✅ 알림 배지 표시
             updateGlobalBadge();
