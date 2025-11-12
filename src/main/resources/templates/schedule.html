@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        /* (style 태그 내용은 이전과 동일) */
+        /* (CSS 스타일 유지) */
         .schedule-search-main {
             padding: 100px 40px 40px 40px;
             background-color: #f7f7f7;
@@ -110,7 +110,7 @@
             color: #6c5ce7;
             width: 16px;
         }
-        /* ⭐⭐ 추가: 생성자 아이콘 스타일 ⭐⭐ */
+        /* ⭐⭐ 추가: 주최자 아이콘 스타일 ⭐⭐ */
         .match-item-body p i.fa-crown {
             color: #f39c12; /* 왕관은 눈에 띄는 노란색으로 */
         }
@@ -219,6 +219,17 @@
 </main>
 
 <script>
+    // ⭐⭐ [수정] DOMContentLoaded 이전에 헤더 닉네임 로딩 함수 정의 및 실행 (최우선 실행) ⭐⭐
+    (function loadHeaderNickname() {
+        const usernameSpan = document.getElementById('user-menu-username');
+        if (usernameSpan) {
+            // 'userNickname' 키의 값을 가져와서 설정합니다.
+            usernameSpan.textContent = localStorage.getItem('userNickname') || '사용자';
+        }
+    })();
+    // ⭐⭐ [수정 끝] ⭐⭐
+
+
     // --- (★공통★) 메뉴 토글 로직 (유지) ---
     const menuToggle = document.getElementById('menu-toggle');
     const mainMenu = document.getElementById('main-menu');
@@ -360,13 +371,23 @@
         }
         noResults.style.display = 'none';
 
-        // 날짜별로 그룹화하기 위한 맵 (여기서는 그룹화 로직 없이 flat하게 렌더링)
-
         matches.forEach(match => {
             const card = document.createElement('div');
             const statusClass = match.status === 'closed' ? 'closed' : 'open';
             const buttonDisabled = match.status === 'closed' ? 'disabled' : '';
-            const creatorDisplayName = match.creator || '로그인 사용자';
+
+            // ⭐⭐⭐ [핵심 수정] "생성자" 문구를 "주최자"로 변경 ⭐⭐⭐
+            // match.creator 값이 '로그인 사용자'일 경우, localStorage의 userNickname 사용
+            let displayCreator = match.creator;
+            const currentUserNickname = localStorage.getItem('userNickname') || '로그인 사용자';
+
+            if (displayCreator === '로그인 사용자' || displayCreator === 'MyUser123' || displayCreator === '리얼유저') {
+                displayCreator = currentUserNickname;
+            }
+            if (!displayCreator) {
+                displayCreator = '주최자 정보 없음';
+            }
+            // ⭐⭐⭐ [수정 끝] ⭐⭐
 
             // YYYY-MM-DD (HH:MM) 형태로 표시하기 위해 날짜와 시간을 합칩니다.
             const displayDateTime = `${match.date} (${match.time})`;
@@ -380,7 +401,7 @@
                 </div>
                 <div class="match-item-body">
                     <p style="font-size: 14px; color: #6c5ce7; font-weight: 600; margin-bottom: 12px;">
-                        <i class="fas fa-crown" style="margin-right: 5px;"></i> 생성자: ${creatorDisplayName}
+                        <i class="fas fa-crown" style="margin-right: 5px;"></i> 주최자: ${displayCreator}
                     </p>
                     <p class="location">
                         <i class="fas fa-map-marker-alt"></i>
@@ -439,6 +460,11 @@
             if (profileToggle) profileToggle.style.display = 'block';
             if (navLogin) navLogin.parentElement.style.display = 'none';
             if (navLogout) navLogout.parentElement.style.display = 'list-item';
+
+            // ⭐⭐ 헤더 닉네임 업데이트 (userNickname 참조) ⭐⭐
+            const usernameSpan = document.getElementById('user-menu-username');
+            if (usernameSpan) usernameSpan.textContent = localStorage.getItem('userNickname') || '사용자';
+
         } else {
             // [비회원일 때]
             if (profileToggle) profileToggle.style.display = 'none';
