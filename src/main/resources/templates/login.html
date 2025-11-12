@@ -116,8 +116,6 @@
     </div>
 </div>
 <script>
-    // 이전에 있던 즉시 실행 함수를 DOMContentLoaded 이벤트 안으로 통합
-
     // --- (★공통★) 메뉴 토글 및 로그아웃 로직 ---
     const menuToggle = document.getElementById('menu-toggle');
     const mainMenu = document.getElementById('main-menu');
@@ -232,6 +230,14 @@
                 const data = await response.json();
                 if (data.accessToken) {
                     localStorage.setItem('accessToken', data.accessToken);
+
+                    // ⭐⭐⭐ [핵심 수정] 닉네임과 사용자 이름 저장 ⭐⭐⭐
+                    // Host/Creator를 위해 MyPage 닉네임인 '리얼유저'를 강제로 userNickname에 저장합니다.
+                    const nicknameToStore = data.nickname || data.username || '리얼유저';
+                    localStorage.setItem('userNickname', nicknameToStore);
+                    localStorage.setItem('username', username);
+                    // ⭐⭐⭐ [수정 끝] ⭐⭐⭐
+
                     console.log('Login successful, token stored.');
                     const modal = document.getElementById('login-success-modal');
                     modal.style.display = 'flex';
