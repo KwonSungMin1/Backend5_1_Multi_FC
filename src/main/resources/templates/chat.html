@@ -808,6 +808,7 @@
         }
 
         // 5. 사이드바 닫기 (채팅 영역을 클릭했을 때)
+        const participantSidebar = document.getElementById('participant-sidebar');
         const isClickInsideSidebar = participantSidebar.contains(event.target) || event.target.closest('button[onclick="openParticipantList()"]');
         const isClickInsideChatContent = chatContentArea.contains(event.target) && !isClickInsideInlineProfile;
 
@@ -1667,6 +1668,17 @@
         loadRoomList(currentChatType);
         updateNewChatForm('one-on-one');
         openInlineProfileDetail(false);
+
+        // ⭐⭐⭐ [추가] 채팅 생성 버튼 기능 재부착 ⭐⭐⭐
+        const newChatBtn = document.getElementById('new-chat-btn');
+        if (newChatBtn) {
+            newChatBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // 외부 클릭 닫기 이벤트와 충돌 방지
+                openNewChatModal(true);
+            });
+        }
+        // ⭐⭐⭐ [추가 끝] ⭐⭐⭐
+
 
         // ✅ 경기 상세에서 넘어온 그룹 채팅 생성 요청 처리
         const matchChatRaw = localStorage.getItem('match_chat_request');
