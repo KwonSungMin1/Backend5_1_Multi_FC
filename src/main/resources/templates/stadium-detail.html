@@ -1036,9 +1036,13 @@
             document.getElementById('profile-menu-toggle').style.display = 'block';
         }
 
+        // stadium-detail.html 스크립트의 DOMContentLoaded 외부 (혹은 내부)
+// ...
         const btnCreateMatch = document.getElementById('btn-create-match');
-        const DEFAULT_USER = "로그인 사용자";
+// ❗❗❗ 이 부분의 DEFAULT_USER 정의를 수정합니다 ❗❗❗
+        const DEFAULT_USER = localStorage.getItem('userNickname') || "로그인 사용자";
         const hostNameInput = document.getElementById('hostName');
+// ...
         const stadiumNameInput = document.getElementById('stadiumName');
         const hiddenStadiumIdInput = document.getElementById('stadiumId');
         const matchDateInput = document.getElementById('matchDate');
@@ -1073,7 +1077,8 @@
         }
 
         function initMatchModalFields() {
-            hostNameInput.value = DEFAULT_USER;
+            // ⭐ 이 부분이 수정되어야 합니다. ⭐
+            hostNameInput.value = DEFAULT_USER; // 이제 '리얼유저' 값이 들어갑니다.
 
             const fullNameText = document.getElementById('stadium-name').textContent;
             const pureName = fullNameText.split('(ID')[0].trim();
