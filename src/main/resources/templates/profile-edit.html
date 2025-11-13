@@ -46,7 +46,6 @@
         <div class="main-section">
             <div class="login-container">
 
-                <!-- 비밀번호 재확인 영역 -->
                 <div id="password-confirmation-wrapper">
                     <h1 class="title-login">보안 확인</h1>
                     <p style="margin-bottom: 20px; font-size: 15px; color: #555;">회원 정보를 안전하게 보호하기 위해<br>비밀번호를 다시 한 번 입력해주세요.</p>
@@ -64,7 +63,6 @@
                     </form>
                 </div>
 
-                <!-- 실제 내 정보 수정 영역 -->
                 <div id="profile-edit-wrapper" style="display:none;">
                     <h1 class="title-login">내 정보 수정</h1>
 
@@ -74,7 +72,6 @@
 
                     <form id="profile-update-form" enctype="multipart/form-data">
 
-                        <!-- 🔹 이메일 수정 추가 -->
                         <div class="input-group">
                             <label for="email">이메일</label>
                             <input type="email"
@@ -84,7 +81,6 @@
                                    required>
                         </div>
 
-                        <!-- 닉네임 + 중복 확인 버튼 -->
                         <div class="input-group with-button">
                             <div class="input-wrapper">
                                 <label for="nickname">닉네임</label>
@@ -93,7 +89,6 @@
                             <button type="button" id="check-nickname-btn" class="check-duplicate-btn">중복 확인</button>
                         </div>
 
-                        <!-- 포지션 설정 -->
                         <div class="input-group">
                             <label for="position">포지션 설정</label>
                             <select id="position" name="position" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; background: #f7f7f7;">
@@ -105,7 +100,6 @@
                             </select>
                         </div>
 
-                        <!-- 🔹 실력 레벨 수정 추가 -->
                         <div class="input-group">
                             <label for="skill-level">나의 실력 레벨</label>
                             <select id="skill-level" name="skillLevel" required
@@ -117,13 +111,11 @@
                             </select>
                         </div>
 
-                        <!-- 활동 장소 -->
                         <div class="input-group">
                             <label for="location">활동 장소 설정</label>
                             <input type="text" id="location" name="location" placeholder="예: 서울시 강남구" required>
                         </div>
 
-                        <!-- 프로필 사진 -->
                         <div class="input-group">
                             <label>프로필 사진 수정</label>
                             <img id="profile-preview" th:src="@{/images/default-profile.png}" alt="프로필 미리보기" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 1px solid #ddd;">
@@ -281,10 +273,11 @@
             if (navLoginLink) navLoginLink.parentElement.style.display = 'none';
             if (navLogoutLink) navLogoutLink.parentElement.style.display = 'list-item';
 
-            // (★) 글로벌 알림 배지 체크
+            // ⭐⭐⭐ [핵심 수정] 알림 배지 체크 및 업데이트 ⭐⭐⭐
             await checkPendingReviews();
             await checkUpcomingSchedules();
             updateGlobalBadge();
+            // ⭐⭐⭐ [핵심 수정 끝] ⭐⭐⭐
 
             // (★) profile-edit.html 고유 로직은
             // 비밀번호 확인(confirmForm) 성공 시 fetchMyEditInfo() 호출로 실행됩니다.
