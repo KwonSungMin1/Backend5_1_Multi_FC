@@ -74,7 +74,7 @@
         .icon-schedule { color: #6c5ce7; }
         .icon-friend { color: #2ecc71; }
         .icon-comment { color: #3498db; }
-        .icon-chat { color: #9b59b6; }
+        .icon-chat { color: #9b5ce7; } /* 보라색 계열로 통일 */
 
         .notification-content {
             flex: 1;
@@ -159,6 +159,7 @@
     <div class="header-icons">
         <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: block;">
             <i class="fas fa-user-circle"></i>
+            <span id="notification-badge" class="notification-badge" style="display: none;"></span>
         </button>
 
         <div id="profile-menu" class="user-menu">
@@ -196,12 +197,73 @@
 </main>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // ⭐⭐ 알림 배지 관련 Mock 함수 ⭐⭐
+    const badge = document.getElementById('notification-badge');
+    let hasReviewNotif = false;
+    let hasScheduleNotif = false;
+
+    function updateGlobalBadge() {
+        if (badge) {
+            badge.style.display = (hasReviewNotif || hasScheduleNotif) ? 'block' : 'none';
+        }
+    }
+    async function checkPendingReviews() {
+        // [수정] Mock 로직: 로컬 스토리지에 'hasReadReviews'가 없거나 'false'일 경우 알림 True
+        if (localStorage.getItem('hasReadReviews') === 'true') {
+            hasReviewNotif = false;
+            return;
+        }
+        try {
+            await new Promise(r => setTimeout(r, 200));
+            const mockReviews = { "count": 1 };
+            if (mockReviews.count > 0) {
+                hasReviewNotif = true;
+            }
+        } catch (error) { console.error("후기 알림 요청 중 오류:", error); }
+    }
+    async function checkUpcomingSchedules() {
+        // [수정] Mock 로직: 로컬 스토리지에 'hasReadSchedules'가 없거나 'false'일 경우 알림 True
+        if (localStorage.getItem('hasReadSchedules') === 'true') {
+            hasScheduleNotif = false;
+            return;
+        }
+        try {
+            await new Promise(r => setTimeout(r, 500));
+            const mockSchedules = [ { id: 1, date: "2025-11-01" } ]; // 미확인 일정이 있다고 가정
+            if (mockSchedules.length > 0) {
+                hasScheduleNotif = true;
+            }
+        } catch (error) { console.error("일정 요청 중 오류 발생:", error); }
+    }
+    // ⭐⭐ 알림 배지 관련 Mock 함수 끝 ⭐⭐
+
+
+    document.addEventListener('DOMContentLoaded', async () => {
         /* ✅ 메뉴 토글 관련 복구 */
         const menuToggle = document.getElementById('menu-toggle');
         const mainMenu = document.getElementById('main-menu');
         const profileMenuToggle = document.getElementById('profile-menu-toggle');
         const profileMenu = document.getElementById('profile-menu');
+        const accessToken = localStorage.getItem('accessToken');
+
+        // ⭐⭐ [수정] 알림 배지 업데이트 로직 실행 ⭐⭐
+        if (accessToken) {
+            // 1. 프로필 토글 표시 (로그인 상태임을 가정)
+            if (profileMenuToggle) profileMenuToggle.style.display = 'block';
+
+            // 2. 알림 상태 체크 및 뱃지 업데이트
+            await checkPendingReviews();
+            await checkUpcomingSchedules();
+            updateGlobalBadge();
+
+            // 3. 알림 목록 페이지 접속 시 알림 뱃지 제거 (모두 읽음 처리)
+            localStorage.setItem('hasReadReviews', 'true');
+            localStorage.setItem('hasReadSchedules', 'true');
+            // 4. 알림 뱃지 즉시 숨김
+            updateGlobalBadge();
+        }
+        // ⭐⭐ [수정 끝] ⭐⭐
+
 
         // 햄버거 메뉴 토글
         if (menuToggle) {
@@ -258,6 +320,7 @@
         MOCK_NOTIFICATIONS.forEach(notif => {
             const item = document.createElement('div');
             let iconHtml = '';
+            // [수정] 아이콘 클래스 수정 (chat 아이콘)
             if (notif.type === 'REVIEW') iconHtml = '<i class="fas fa-star icon-review"></i>';
             else if (notif.type === 'COMMENT') iconHtml = '<i class="fas fa-comment icon-comment"></i>';
             else if (notif.type === 'FRIEND_REQUEST') iconHtml = '<i class="fas fa-user-friends icon-friend"></i>';
@@ -276,5 +339,3 @@
         });
     });
 </script>
-</body>
-</html>
