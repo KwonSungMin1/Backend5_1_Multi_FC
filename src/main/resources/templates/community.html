@@ -226,15 +226,53 @@
 </main>
 
 <script>
+    // ⭐⭐ 알림 배지 관련 전역 변수 및 함수 (Mock) ⭐⭐
+    const badge = document.getElementById('notification-badge');
+    let hasReviewNotif = false;
+    let hasScheduleNotif = false;
+
+    function updateGlobalBadge() {
+        if (badge) {
+            badge.style.display = (hasReviewNotif || hasScheduleNotif) ? 'block' : 'none';
+        }
+    }
+    async function checkPendingReviews() {
+        if (localStorage.getItem('hasReadReviews') === 'true') {
+            hasReviewNotif = false;
+            return;
+        }
+        try {
+            await new Promise(r => setTimeout(r, 200));
+            const mockReviews = { "count": 1 };
+            if (mockReviews.count > 0) {
+                hasReviewNotif = true;
+            }
+        } catch (error) { console.error("후기 알림 요청 중 오류:", error); }
+    }
+    async function checkUpcomingSchedules() {
+        if (localStorage.getItem('hasReadSchedules') === 'true') {
+            hasScheduleNotif = false;
+            return;
+        }
+        try {
+            await new Promise(r => setTimeout(r, 500));
+            const mockSchedules = [ { id: 1, date: "2025-11-01" } ];
+            if (mockSchedules.length > 0) {
+                hasScheduleNotif = true;
+            }
+        } catch (error) { console.error("일정 요청 중 오류 발생:", error); }
+    }
+    // ⭐⭐ 알림 배지 관련 전역 변수 및 함수 끝 ⭐⭐
+
     // ⭐⭐ [추가] DOMContentLoaded 이전에 헤더 닉네임 로딩 함수 정의 및 실행 (최우선 실행) ⭐⭐
     (function loadHeaderNickname() {
         const usernameSpan = document.getElementById('user-menu-username');
         if (usernameSpan) {
-            // 'userNickname' 키의 값을 가져와서 설정합니다.
             usernameSpan.textContent = localStorage.getItem('userNickname') || '사용자';
         }
     })();
     // ⭐⭐ [추가 끝] ⭐⭐
+
 
     // --- (★공통★) 메뉴 토글 및 로그아웃 로직 (유지) ---
     const menuToggle = document.getElementById('menu-toggle');
@@ -289,22 +327,10 @@
     if (navNotificationsLink) {
         navNotificationsLink.addEventListener('click', (e) => {
             localStorage.setItem('hasReadReviews', 'true');
+            localStorage.setItem('hasReadSchedules', 'true');
             window.location.href = '/notifications';
         });
     }
-
-    // --- (★공통★) 알림 배지 로드 함수 (생략) ---
-    const badge = document.getElementById('notification-badge');
-    let hasReviewNotif = false;
-    let hasScheduleNotif = false;
-    function updateGlobalBadge() {
-        const hasNew = localStorage.getItem('hasNewNotification') === 'true';
-        const badge = document.getElementById('notification-badge');
-        if (badge) badge.style.display = hasNew ? 'block' : 'none';
-    }
-    updateGlobalBadge();
-
-    // ... (알림 함수 유지) ...
 
     // (★기존 더미 데이터)
     const initialPosts = [
@@ -526,8 +552,13 @@
             // ✅ 로그인 상태 설정
             if (profileIcon) profileIcon.style.display = 'flex';
 
-            // ✅ 알림 배지 표시
-            updateGlobalBadge();
+            // ⭐⭐⭐ [핵심 수정: 알림 체크 및 배지 업데이트] ⭐⭐⭐
+            (async () => {
+                await checkPendingReviews();
+                await checkUpcomingSchedules();
+                updateGlobalBadge();
+            })();
+            // ⭐⭐⭐ [핵심 수정 끝] ⭐⭐⭐
 
             // ✅ 다른 탭에서 로컬스토리지 변경 시 자동 업데이트
             window.addEventListener('storage', (e) => {
@@ -561,6 +592,3 @@
         });
     });
 </script>
-
-</body>
-</html>
