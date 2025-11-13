@@ -786,13 +786,13 @@
             inlineProfileDetail &&
             (inlineProfileDetail.contains(event.target) || event.target.closest('.participant-item'));
 
-        const isNewChatButton = event.target.closest('#new-chat-btn');
+        const isNewChatButton =
+            event.target.closest('#new-chat-btn') ||
+            event.target.closest('#profile-chat-btn'); // ← 1:1 채팅하기 버튼 추가됨
 
         // 모달 관련
-        const isClickInsideNewChatModal = newChatModal.contains(event.target) || isNewChatButton;
-        const isClickInsideProfileModal = profileModal.contains(event.target);
-        const isClickInsideInviteModal = inviteModal.contains(event.target);
-
+        const isClickInsideNewChatModal =
+            newChatModal.contains(event.target) || isNewChatButton;
         // 1. 메인 메뉴 닫기
         if (!isClickInsideMenu && mainMenu.classList.contains('show')) {
             mainMenu.classList.remove('show');
