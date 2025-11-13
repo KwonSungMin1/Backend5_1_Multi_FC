@@ -781,7 +781,7 @@
         const isClickInsideMenu = mainMenu.contains(event.target) || menuToggle.contains(event.target);
         const isClickInsideProfile = profileMenu.contains(event.target) || profileMenuToggle.contains(event.target);
 
-        // 인라인 프로필 관련 (participant-item 클릭은 openInlineProfileDetail 내부에서 처리됨)
+        // 인라인 프로필 관련 (participant-item 클릭은 openInlineProfileDetail 내부에서 처리)
         const isClickInsideInlineProfile =
             inlineProfileDetail &&
             (inlineProfileDetail.contains(event.target) || event.target.closest('.participant-item'));
