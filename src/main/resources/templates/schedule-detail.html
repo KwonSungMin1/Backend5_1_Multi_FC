@@ -170,19 +170,55 @@
             background-color: #e74c3c;
         }
 
-        #host-select-hint {
-            font-size: 12px;
-            color: #999;
-            margin-top: 8px;
+        /* ⭐ [추가/수정] 모두 체크 버튼 스타일 (delete-match-btn 재사용) ⭐ */
+        #host-selection-controls button {
+            background-color: #4a90e2;
         }
 
+        /* ⭐ [수정] 마감하기 버튼 디자인 개선 및 활성화 시 강조 ⭐ */
         #close-match-btn {
-            background-color: #ccc !important;
+            background: linear-gradient(135deg, #6c5ce7, #8e44ad);
+            color: white !important;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+
+            /* 비활성화 상태 스타일 */
+            opacity: 0.6;
+            filter: grayscale(0.5);
+            transform: none;
             cursor: not-allowed;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         #close-match-btn.enabled:not(:disabled) {
-            background-color: #6c5ce7 !important;
+            /* 활성화 상태 스타일 */
+            opacity: 1;
+            filter: none;
+            background: linear-gradient(135deg, #4a90e2, #6c5ce7) !important;
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4) !important;
+            transform: translateY(-3px);
             cursor: pointer;
+        }
+
+        #close-match-btn.enabled:not(:disabled):hover {
+            filter: brightness(1.1);
+        }
+
+        /* ⭐ [수정] 호스트 힌트 메시지 UI 개선 ⭐ */
+        #host-select-hint {
+            font-size: 13px;
+            color: #555;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3cd;
+            border: 1px solid #ffe082;
+            border-radius: 5px;
+            text-align: left;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -264,9 +300,13 @@
             <div class="detail-right-column">
                 <div class="status-card">
                     <h3>참여 현황</h3>
-                    <!-- 숫자 안 보이게 -->
                     <strong style="display:none;"><span id="current-players">4</span> / <span id="max-players">10</span> 명</strong>
 
+                    <div id="host-selection-controls" style="display:none; margin-bottom: 15px; text-align: right;">
+                        <button id="toggle-all-players-btn" class="delete-match-btn" style="background-color:#4a90e2;">
+                            <i class="fas fa-check-double"></i> 모두 선택
+                        </button>
+                    </div>
                     <div class="participant-section">
                         <ul class="participant-list host-participant-list" id="host-participant-list"></ul>
                         <div class="participant-scroll">
@@ -274,11 +314,9 @@
                         </div>
                     </div>
 
-                    <!-- 일반 참가자용 버튼 -->
                     <button id="join-match-btn" class="login-button join-button" style="display:none;" onclick="handleJoin()">참여하기</button>
                     <button id="cancel-match-btn" class="login-button join-button btn-cancel" style="display:none;">참여 취소</button>
 
-                    <!-- 호스트용 마감 버튼 -->
                     <button id="close-match-btn"
                             class="schedule-button join-button"
                             style="display:none; margin-top:8px;"
@@ -438,7 +476,9 @@
         }
 
         const hostHint = document.getElementById('host-select-hint');
+        const hostControls = document.getElementById('host-selection-controls');
         if (hostHint) hostHint.style.display = 'none';
+        if (hostControls) hostControls.style.display = 'none';
     }
 
     // --- 참여자/호스트 더미 데이터 ---
@@ -522,6 +562,8 @@
 
     // 실제 화면에 사용할 현재 참가자 목록
     let currentParticipants = [];
+    let isParticipating = false;
+    let isHost = false;
 
     function buildInitialParticipants() {
         // ✅ 이 매치의 주최자 닉네임
@@ -537,10 +579,10 @@
 
         // 🔍 현재 로그인 유저 정보
         const myMock = baseList.find(p => p.id === CURRENT_USER_ID);
-        const iAmHost = !!myMock && myMock.role === 'Host';
+        isHost = !!myMock && myMock.role === 'Host';
 
         // ✅ 호스트는 리스트에서 제거하지 않음
-        if (iAmHost) {
+        if (isHost) {
             currentParticipants = baseList;
             isParticipating = true;   // 호스트는 자동 참여 상태
         } else {
@@ -556,6 +598,62 @@
     }
 
     const selectedPlayerIds = new Set();
+    const toggleAllPlayersBtn = document.getElementById('toggle-all-players-btn');
+    const hostSelectionControls = document.getElementById('host-selection-controls');
+
+    // ✅ 1. '모두 체크/해제' 기능 구현 함수
+    function toggleAllPlayers(action) {
+        const shouldCheck = action === 'check';
+        const checkboxes = document.querySelectorAll('.player-select-checkbox');
+        let playersChanged = false;
+
+        checkboxes.forEach(cb => {
+            const userId = parseInt(cb.dataset.userId, 10);
+
+            // Host 역할이 아닌 플레이어만 대상으로 함 (Host 역할이 아닌 플레이어)
+            const user = currentParticipants.find(p => p.id === userId);
+            if (user && user.role === 'Host') return;
+
+            if (shouldCheck && !cb.checked) {
+                cb.checked = true;
+                selectedPlayerIds.add(userId);
+                playersChanged = true;
+            } else if (!shouldCheck && cb.checked) {
+                cb.checked = false;
+                selectedPlayerIds.delete(userId);
+                playersChanged = true;
+            }
+        });
+
+        if (playersChanged) {
+            updateCloseButtonState();
+            updateToggleAllButtonUI();
+        }
+    }
+
+    // ✅ 2. '모두 체크/해제' 버튼의 UI (텍스트/색상) 업데이트 함수 재조정
+    function updateToggleAllButtonUI() {
+        if (!toggleAllPlayersBtn || !isHost) return;
+
+        const checkboxes = document.querySelectorAll('.player-select-checkbox');
+        const totalSelectable = checkboxes.length;
+        const currentlySelected = selectedPlayerIds.size;
+
+        // [수정된 로직] 모두 선택된 경우에만 '모두 해제'를 표시
+        const allSelected = currentlySelected === totalSelectable && totalSelectable > 0;
+
+        if (allSelected) {
+            // 모두 선택된 상태 -> 다음 클릭은 해제
+            toggleAllPlayersBtn.textContent = '모두 해제';
+            toggleAllPlayersBtn.style.backgroundColor = '#e74c3c'; // 빨간색
+            toggleAllPlayersBtn.dataset.action = 'uncheck';
+        } else {
+            // 일부만 선택됐거나 아무도 선택되지 않은 상태 -> 다음 클릭은 선택
+            toggleAllPlayersBtn.textContent = '모두 선택';
+            toggleAllPlayersBtn.style.backgroundColor = '#4a90e2'; // 파란색
+            toggleAllPlayersBtn.dataset.action = 'check';
+        }
+    }
 
     function renderParticipantList() {
         const participants = currentParticipants;
@@ -568,10 +666,6 @@
         hostListEl.innerHTML = '';
         listEl.innerHTML = '';
 
-        const me = participants.find(u => u.id === CURRENT_USER_ID);
-        isParticipating = !!me;
-        isHost = !!me && me.role === 'Host';
-
         const deleteBtn = document.getElementById('delete-match-btn');
         if (deleteBtn) {
             deleteBtn.style.display = isHost ? 'inline-block' : 'none';
@@ -579,6 +673,15 @@
 
         const hostUser = participants.find(u => u.role === 'Host');
         const otherUsers = participants.filter(u => u.role !== 'Host');
+
+        // 호스트 컨트롤 표시 여부
+        if (isHost && hostSelectionControls) {
+            hostSelectionControls.style.display = 'block';
+            updateToggleAllButtonUI(); // 버튼 초기 UI 설정
+        } else if (hostSelectionControls) {
+            hostSelectionControls.style.display = 'none';
+        }
+
 
         function createParticipantItem(user) {
             const listItem = document.createElement('li');
@@ -599,7 +702,8 @@
                     <input type="checkbox"
                            class="player-select-checkbox"
                            data-user-id="${user.id}"
-                           ${selectedPlayerIds.has(user.id) ? 'checked' : ''}>
+                           ${selectedPlayerIds.has(user.id) ? 'checked' : ''}
+                           ${isMatchClosed() ? 'disabled' : ''}>
                 `;
             }
 
@@ -640,6 +744,7 @@
                     selectedPlayerIds.delete(uid);
                 }
                 updateCloseButtonState();
+                updateToggleAllButtonUI();
             });
         });
 
@@ -661,7 +766,7 @@
             joinBtn.style.display = 'none';
             cancelBtn.style.display = 'none';
             closeBtn.style.display = 'none';
-            hostHint.style.display = 'none';
+            if (hostHint) hostHint.style.display = 'none';
             loginPrompt.style.display = 'block';
             return;
         }
@@ -675,7 +780,7 @@
             hostHint.style.display = 'block';
         } else {
             closeBtn.style.display = 'none';
-            hostHint.style.display = 'none';
+            if (hostHint) hostHint.style.display = 'none';
 
             if (isParticipating) {
                 joinBtn.style.display = 'none';
@@ -741,7 +846,7 @@
             const meFromMock = MOCK_PARTICIPANTS.find(p => p.id === CURRENT_USER_ID) || {
                 id: CURRENT_USER_ID,
                 username: 'my_user_id',
-                nickname: '나의닉네임',
+                nickname: CURRENT_NICKNAME,
                 position: 'ALA',
                 role: 'Player'
             };
@@ -1060,15 +1165,24 @@
             deleteMatchBtn.addEventListener('click', handleDeleteMatch);
         }
 
+        // ⭐⭐⭐ 모두 체크 버튼 이벤트 리스너 연결 (수정된 로직) ⭐⭐⭐
+        if (toggleAllPlayersBtn) {
+            toggleAllPlayersBtn.addEventListener('click', () => {
+                const action = toggleAllPlayersBtn.dataset.action; // 'check' 또는 'uncheck' 액션 가져오기
+                toggleAllPlayers(action);
+            });
+        }
+        // ⭐⭐⭐ 이벤트 리스너 연결 끝 ⭐⭐⭐
+
         loadMatchDetailFromLocal();
 
         // ✅ 로컬스토리지/목업 기반으로 처음 참가자 상태 구성 (여기서 Host 닉네임 매치별로 맞춰짐)
         buildInitialParticipants();
         renderParticipantList();
+
+        // ⭐⭐ [추가] 초기 로딩 시점에 버튼 UI를 한 번 더 강제로 업데이트하여 '모두 선택'을 보장 ⭐⭐
+        updateToggleAllButtonUI();
     });
 </script>
-
-
-
 </body>
 </html>
