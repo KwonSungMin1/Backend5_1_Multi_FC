@@ -144,19 +144,25 @@ body, html {
 }
 .main-nav ul li a {
     display: block;
-    /* ⭐⭐⭐ [수정] 좌우 패딩을 12px로 줄여 메뉴 창 크기를 줄입니다. ⭐⭐⭐ */
     padding: 15px 12px;
-    color: #bdc3c7;
+
+    /* [수정] 비활성화 텍스트 색상을 짙은 회색으로 명확히 변경 (이전 피드백 반영) */
+    color: #444444;
+
     text-decoration: none;
     font-size: 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid #f0f0f0;
     transition: background-color 0.3s, color 0.3s;
     font-weight: 600;
     align-items: center;
 }
+
 .main-nav ul li a i {
     margin-right: 10px;
-    color: #2c3e50;
+
+    /* [수정] 비활성화 아이콘 색상도 짙은 회색으로 변경 */
+    color: #444444;
+
     font-size: 18px;
     width: 20px;
     transition: color 0.3s;
@@ -166,25 +172,33 @@ body, html {
 .main-nav ul li a:hover,
 .main-nav ul li a:focus,
 .main-nav ul li a.active {
+    /* 텍스트 색상을 보라색 (#6c5ce7)으로 통일 */
     color: #6c5ce7;
+
+    /* 배경색은 옅은 보라색 계열 유지 */
     background-color: rgba(108, 92, 231, 0.1);
+
+    /* 왼쪽 강조 바 색상 유지 */
     border-left: 4px solid #6c5ce7;
     padding-left: 16px;
     outline: none;
 }
+
 .main-nav ul li a:hover i,
 .main-nav ul li a:focus i,
 .main-nav ul li a.active i {
+    /* 아이콘 색상을 보라색으로 통일 */
     color: #6c5ce7;
 }
 
 .main-nav ul li:last-child a {
     border-bottom: none;
 }
-.main-nav ul li a.active,
 .main-nav ul li a:hover {
-    color: #3498db;
-    background-color: rgba(52, 152, 219, 0.1);
+    /* 🚨 이 블록이 파란색을 유발할 가능성이 높습니다! */
+    /* [삭제 또는 수정] 이 블록을 삭제하거나, 아래와 같이 보라색으로 통일하세요. */
+    color: #6c5ce7; /* 보라색으로 통일 */
+    background-color: rgba(108, 92, 231, 0.1);
 }
 
 /* 햄버거 메뉴용 로그아웃 버튼 */
@@ -208,16 +222,20 @@ body, html {
 .user-menu {
     display: none;
     position: absolute;
-    top: 55px; /* 아이콘 아래 위치 */
-    right: 20px; /* 퀵메뉴의 패딩에 맞춰 오른쪽 위치 조정 */
-    background-color: #34495e;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    top: 55px;
+    right: 20px;
+
+    /* [수정] 배경색을 밝은 흰색 계열로 변경 */
+    background-color: #ffffff;
+
+    /* [수정] 그림자를 더 깔끔하게 조정 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    border: 1px solid #ddd; /* 테두리를 밝게 조정 */
     border-radius: 8px;
     width: 200px;
     z-index: 101;
     overflow: hidden;
-
 }
 .user-menu.show {
     display: block;
@@ -225,20 +243,29 @@ body, html {
 .user-menu .user-info {
     border-bottom: 1px solid #eee;
     padding: 15px;
-    background-color: #2c3e50;
-    color: #ecf0f1;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* [수정] 배경색을 밝은 회색 계열로 변경 */
+    background-color: #f7f7f7;
+
+    /* [수정] 텍스트 색상을 짙은 색으로 변경 */
+    color: #2c3e50;
+
+    border-bottom: 1px solid #ddd;
     text-align: center;
 }
+
 .user-menu .user-info strong {
     font-size: 1.1em;
     display: block;
     margin-bottom: 5px;
+    /* [수정] 닉네임 색상 (짙은 색 유지) */
     color: #2c3e50;
 }
+
 .user-menu .user-info p {
     font-size: 0.9em;
-    color: #bdc3c7;
+    /* [수정] 환영 메시지 색상 조정 */
+    color: #555555;
     margin: 0;
 }
 .user-menu ul {
@@ -249,23 +276,33 @@ body, html {
 .user-menu ul li a {
     display: block;
     padding: 12px 15px;
-    color: #ecf0f1;
+
+    /* [수정] 텍스트 색상을 짙은 색으로 변경 */
+    color: #333333;
+
     text-decoration: none;
     font-size: 15px;
     transition: background-color 0.3s, color 0.3s;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+    /* [수정] 구분선을 밝게 조정 */
+    border-bottom: 1px solid #eeeeee;
     align-items: center;
     font-weight: 500;
 }
+
 .user-menu ul li a i {
     margin-right: 8px;
+    /* [수정] 아이콘 색상을 보라색 유지 (혹은 짙은 색으로 변경) */
     color: #6c5ce7;
     width: 16px;
     font-size: 16px;
 }
+
 .user-menu ul li a:hover {
-    background-color: rgba(52, 152, 219, 0.2);
-    color: #3498db;
+    /* [수정] 호버 배경색을 밝은 계열로 변경 */
+    background-color: rgba(108, 92, 231, 0.1);
+    /* 호버 텍스트 색상 유지 */
+    color: #6c5ce7;
 }
 
 .user-menu ul li:last-child a {
