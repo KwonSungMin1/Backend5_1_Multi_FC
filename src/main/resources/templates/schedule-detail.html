@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="'경기 상세 (ID: ' + ${matchId} + ') - MULTI FC'">MULTI FC - 일정 상세</title>
+    <title th:text="'경기 상세 (ID: ' + ${matchId} + ') - MULTI FC'">Multi FC - 일정 상세</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
 <header class="quick-menu">
     <div class="logo"><a href="/">MULTI FC</a></div>
     <div class="header-icons">
-        <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: none;">
+        <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: block;">
             <i class="fas fa-user-circle"></i>
             <span id="notification-badge" class="notification-badge"></span>
         </button>
@@ -88,9 +88,13 @@
             <div class="detail-right-column">
                 <div class="status-card">
                     <h3>참여 현황</h3>
-                    <!-- 숫자 안 보이게 -->
                     <strong style="display:none;"><span id="current-players">4</span> / <span id="max-players">10</span> 명</strong>
 
+                    <div id="host-selection-controls" style="text-align: right; margin-bottom: 10px; display: none;">
+                        <button id="toggle-all-players-btn" class="check-duplicate-btn" type="button" style="padding: 6px 12px; font-size: 13px;">
+                            <i class="fas fa-check-double"></i> 전체 선택
+                        </button>
+                    </div>
                     <div class="participant-section">
                         <ul class="participant-list host-participant-list" id="host-participant-list"></ul>
                         <div class="participant-scroll">
@@ -98,11 +102,9 @@
                         </div>
                     </div>
 
-                    <!-- 일반 참가자용 버튼 -->
                     <button id="join-match-btn" class="login-button join-button" style="display:none;" onclick="handleJoin()">참여하기</button>
                     <button id="cancel-match-btn" class="login-button join-button join-btn-cancel" style="display:none;">참여 취소</button>
 
-                    <!-- 호스트용 마감 버튼 -->
                     <button id="close-match-btn"
                             class="schedule-button join-button"
                             style="display:none; margin-top:8px;"
@@ -133,6 +135,14 @@
     const navChatLinkElement = document.getElementById('nav-chat-link-li');
     const navLoginLink = document.getElementById('nav-login-link');
     const navLogoutLink = document.getElementById('nav-logout-link');
+
+    // ✅ 닉네임 로드 (상단 헤더)
+    (function loadHeaderNickname() {
+        const usernameSpan = document.getElementById('user-menu-username');
+        if (usernameSpan) {
+            usernameSpan.textContent = localStorage.getItem('userNickname') || '사용자';
+        }
+    })();
 
     if (menuToggle) {
         menuToggle.addEventListener('click', () => {
@@ -179,14 +189,6 @@
             window.location.href = '/login';
         });
     }
-
-    // ✅ 헤더 닉네임 로드 (userNickname이 있으면 헤더에 뿌려줌)
-    (function loadHeaderNickname() {
-        const usernameSpan = document.getElementById('user-menu-username');
-        if (usernameSpan) {
-            usernameSpan.textContent = localStorage.getItem('userNickname') || '사용자';
-        }
-    })();
 
     function getMatchId() {
         const hidden = document.getElementById('match-id-hidden');
@@ -273,6 +275,27 @@
     const CURRENT_USERNAME = localStorage.getItem('username') || 'my_user_id';
     const CURRENT_NICKNAME = localStorage.getItem('userNickname') || '사용자';
 
+    // ✅ [수정] 레벨 정보를 포함한 Mock 참가자 데이터 (실제 백엔드 연동 시 이 데이터는 API로 대체됨)
+    const MOCK_PARTICIPANTS = [
+        {
+            id: CURRENT_USER_ID,
+            username: CURRENT_USERNAME,
+            nickname: CURRENT_NICKNAME,
+            position: 'ALA',
+            role: 'Host',
+            level: '상급'
+        },
+        { id: 101, username: 'captain_son',  nickname: '캡틴손',      position: 'ALA',      role: 'Player', level: '중급' },
+        { id: 102, username: 'closer_kim',   nickname: '구원투수',    position: 'FIXO',     role: 'Player', level: '중급' },
+        { id: 103, username: 'shootdori',    nickname: '슛돌이',      position: 'PIVO',     role: 'Player', level: '초급' },
+        { id: 104, username: 'captain_park', nickname: '캡틴박',      position: 'ALA',      role: 'Player', level: '상급' },
+        { id: 105, username: 'futsal_mania', nickname: '풋살 매니아', position: 'ALA',      role: 'Player', level: '중급' },
+        { id: 106, username: 'keeper_p',     nickname: '골키퍼p',     position: 'GOLEIRO',  role: 'Player', level: '상급' },
+        { id: 107, username: 'keeper_k',     nickname: '골키퍼K',     position: 'GOLEIRO',  role: 'Player', level: '초급' },
+        { id: 108, username: 'pass_master',  nickname: '패스마스터',  position: 'FIXO',     role: 'Player', level: '중급' },
+        { id: 109, username: 'power_shot',   nickname: '파워슛',      position: 'PIVO',     role: 'Player', level: '초급' }
+    ];
+
     // ✅ 매치별 주최자 닉네임 매핑 (목록 MOCK_MATCHES와 동일하게 맞추기)
     const MOCK_MATCH_HOSTS = [
         { matchId: 1, nickname: '캡틴손' },
@@ -281,32 +304,11 @@
         { matchId: 4, nickname: '테스터' },
     ];
 
-    const MOCK_PARTICIPANTS = [
-        // ✅ 여기 호스트를 "현재 로그인 사용자"로 설정
-        {
-            id: CURRENT_USER_ID,
-            username: CURRENT_USERNAME,
-            nickname: CURRENT_NICKNAME,
-            position: 'ALA',
-            role: 'Host'
-        },
-        { id: 101, username: 'captain_son',  nickname: '캡틴손',      position: 'ALA',      role: 'Player' },
-        { id: 102, username: 'closer_kim',   nickname: '구원투수',    position: 'FIXO',     role: 'Player' },
-        { id: 103, username: 'shootdori',    nickname: '슛돌이',      position: 'PIVO',     role: 'Player' },
-        { id: 104, username: 'captain_park', nickname: '캡틴박',      position: 'ALA',      role: 'Player' },
-        { id: 105, username: 'futsal_mania', nickname: '풋살 매니아', position: 'ALA',      role: 'Player' },
-        { id: 106, username: 'keeper_p',     nickname: '골키퍼p',     position: 'GOLEIRO',  role: 'Player' },
-        { id: 107, username: 'keeper_k',     nickname: '골키퍼K',     position: 'GOLEIRO',  role: 'Player' },
-        { id: 108, username: 'pass_master',  nickname: '패스마스터',  position: 'FIXO',     role: 'Player' },
-        { id: 109, username: 'power_shot',   nickname: '파워슛',      position: 'PIVO',     role: 'Player' }
-    ];
-
     // ✅ 현재 매치 ID에 해당하는 Host 닉네임 가져오기
     function getHostNicknameForCurrentMatch() {
         const matchId = getMatchId();
         if (!matchId) return null;
 
-        // 1) 로컬스토리지 match_schedules 안에서 nickname / host.nickname 우선 사용
         try {
             const matches = JSON.parse(localStorage.getItem('match_schedules') || '[]');
             const found = matches.find(m => String(m.id) === String(matchId));
@@ -318,7 +320,6 @@
             console.error('match_schedules 파싱 오류:', e);
         }
 
-        // 2) 없으면 목업 매핑에서 찾기
         const staticHost = MOCK_MATCH_HOSTS.find(h => String(h.matchId) === String(matchId));
         return staticHost ? staticHost.nickname : null;
     }
@@ -346,27 +347,26 @@
 
     // 실제 화면에 사용할 현재 참가자 목록
     let currentParticipants = [];
+    let isParticipating = false;
+    let isHost = false;
 
     function buildInitialParticipants() {
-        // ✅ 이 매치의 주최자 닉네임
         const hostNickname = getHostNicknameForCurrentMatch();
 
-        // 기본: MOCK_PARTICIPANTS를 복사하면서 Host의 nickname만 현재 매치에 맞게 덮어쓰기
+        // Host 닉네임이 로컬스토리지 정보와 일치하지 않을 경우를 대비하여 닉네임 재조정
         const baseList = MOCK_PARTICIPANTS.map(p => {
             if (p.role === 'Host' && hostNickname) {
-                return { ...p, nickname: hostNickname };
+                return { ...p, nickname: hostNickname, level: p.level || '미기입' }; // Host 레벨은 Mock에서 가져옴
             }
             return { ...p };
         });
 
-        // 🔍 현재 로그인 유저 정보
         const myMock = baseList.find(p => p.id === CURRENT_USER_ID);
-        const iAmHost = !!myMock && myMock.role === 'Host';
+        isHost = !!myMock && myMock.role === 'Host';
 
-        // ✅ 호스트는 리스트에서 제거하지 않음
-        if (iAmHost) {
+        if (isHost) {
             currentParticipants = baseList;
-            isParticipating = true;   // 호스트는 자동 참여 상태
+            isParticipating = true;
         } else {
             currentParticipants = baseList.filter(p => p.id !== CURRENT_USER_ID);
 
@@ -401,6 +401,13 @@
             deleteBtn.style.display = isHost ? 'inline-block' : 'none';
         }
 
+        // ⭐ [추가] 전체 선택 버튼 영역 표시/숨김 ⭐
+        const hostSelectionControls = document.getElementById('host-selection-controls');
+        if (hostSelectionControls) {
+            hostSelectionControls.style.display = isHost ? 'block' : 'none';
+        }
+
+
         const hostUser = participants.find(u => u.role === 'Host');
         const otherUsers = participants.filter(u => u.role !== 'Host');
 
@@ -416,6 +423,10 @@
                 : `${user.nickname}`;
 
             const userIdDisplay = user.username ? ` (${user.username})` : '';
+
+            // ⭐ 레벨 정보를 가져와 표시합니다 ⭐
+            const levelDisplay = user.level || '미기입';
+
 
             let checkboxHtml = '';
             if (isHost && user.role !== 'Host') {
@@ -436,7 +447,7 @@
                     ${roleBadge}
                 </div>
                 <div class="detail-info">
-                    포지션: ${user.position}
+                    포지션: ${user.position} | 레벨: ${levelDisplay}
                 </div>
             `;
 
@@ -471,6 +482,36 @@
         updateCloseButtonState();
         applyClosedUIIfNeeded();
     }
+
+    // ⭐ [추가] 전체 선택/해제 기능 ⭐
+    function handleToggleAllPlayers() {
+        const checkboxes = document.querySelectorAll('#participant-list .player-select-checkbox');
+        const toggleBtn = document.getElementById('toggle-all-players-btn');
+
+        // 현재 선택된 상태를 확인하여 토글 모드 결정
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        const newCheckedState = !allChecked;
+
+        selectedPlayerIds.clear(); // 기존 선택 상태 초기화
+
+        checkboxes.forEach(cb => {
+            cb.checked = newCheckedState;
+            const uid = parseInt(cb.dataset.userId, 10);
+            if (newCheckedState) {
+                selectedPlayerIds.add(uid);
+            }
+        });
+
+        // 버튼 텍스트 업데이트
+        if (newCheckedState) {
+            toggleBtn.textContent = '선택 해제';
+        } else {
+            toggleBtn.textContent = '전체 선택';
+        }
+
+        updateCloseButtonState();
+    }
+
 
     function updateJoinButtonState() {
         const joinBtn = document.getElementById('join-match-btn');
@@ -565,9 +606,10 @@
             const meFromMock = MOCK_PARTICIPANTS.find(p => p.id === CURRENT_USER_ID) || {
                 id: CURRENT_USER_ID,
                 username: 'my_user_id',
-                nickname: '나의닉네임',
+                nickname: CURRENT_NICKNAME,
                 position: 'ALA',
-                role: 'Player'
+                role: 'Player',
+                level: '미기입'
             };
 
             currentParticipants = currentParticipants.filter(p => p.id !== CURRENT_USER_ID);
@@ -841,6 +883,8 @@
             if (navLogoutLink) navLogoutLink.parentElement.style.display = 'none';
         }
 
+        const navChatLinkElement = document.getElementById('nav-chat-link'); // DOMContentLoaded 밖에서 정의되었을 수 있으므로 다시 찾습니다.
+
         if (navChatLinkElement) {
             const chatLinkAnchor = navChatLinkElement.querySelector('a');
             if (chatLinkAnchor && !accessToken) {
@@ -884,6 +928,15 @@
             deleteMatchBtn.addEventListener('click', handleDeleteMatch);
         }
 
+        // ⭐ [추가] 전체 선택 버튼 이벤트 리스너 연결 ⭐
+        const toggleAllBtn = document.getElementById('toggle-all-players-btn');
+        if (toggleAllBtn) {
+            toggleAllBtn.addEventListener('click', () => {
+                handleToggleAllPlayers();
+            });
+        }
+
+
         loadMatchDetailFromLocal();
 
         // ✅ 로컬스토리지/목업 기반으로 처음 참가자 상태 구성 (여기서 Host 닉네임 매치별로 맞춰짐)
@@ -891,8 +944,5 @@
         renderParticipantList();
     });
 </script>
-
-
-
 </body>
 </html>
