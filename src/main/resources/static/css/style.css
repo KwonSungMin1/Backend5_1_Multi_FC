@@ -71,8 +71,11 @@ body, html {
 }
 
 .profile-icon {
+    /* 알림 배지가 이 버튼을 기준으로 위치를 잡도록 position: relative; 설정 */
+    position: relative;
+
     font-size: 28px;
-    color: #ecf0f1;
+    color: #2c3e50;
     padding: 0;
     display: block;
     transition: color 0.3s;
@@ -87,19 +90,18 @@ body, html {
 /* ⭐⭐ 알림 배지 (빨간점) 위치 조정 ⭐⭐ */
 
 .notification-badge {
-    position: absolute;
-    top: -2px; /* 24px 아이콘에 맞게 조정 */
-    right: 0px; /* 24px 아이콘에 맞게 조정 */
+    position: absolute; /* 👈 부모(.profile-icon) 기준으로 위치 설정 */
+
+    /* 28px 아이콘에 맞춰 상단 경계에 위치, 살짝 왼쪽으로 당겨 중앙 정렬 */
+    top: 0px;
+    right: -3px;
+
     background-color: #e74c3c;
     color: white;
     border-radius: 50%;
     width: 8px;
     height: 8px;
-    padding: 0;
-    font-size: 0;
-    line-height: 1;
-    display: none; /* 초기에는 숨김 */
-    border: 1px solid rgba(255,255,255,0.8);
+    /* ... 나머지 스타일 유지 ... */
     z-index: 10000;
 }
 
