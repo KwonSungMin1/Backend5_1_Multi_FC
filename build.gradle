@@ -24,6 +24,9 @@ repositories {
     mavenCentral()
 }
 
+// 🚨 비밀번호 특수문자 충돌을 피하기 위해 커스텀 processResources 블록을 제거하거나 단순 복사만 하도록 변경합니다.
+// 여기서는 문제가 되는 필터링 로직을 제거합니다.
+/*
 processResources{
     filesMatching('application.properties'){
         expand(
@@ -31,8 +34,13 @@ processResources{
         )
     }
 }
+*/
+
 
 dependencies {
+    // 💡 필수 추가: MyBatis Spring Boot Starter (MapperScan 오류 해결)
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
@@ -43,19 +51,22 @@ dependencies {
     implementation 'org.springframework.amqp:spring-rabbit-stream'
     implementation 'org.springframework.session:spring-session-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-mail' // MAIL
+
+    // S3
+    implementation platform('software.amazon.awssdk:bom:2.20.43')
+    implementation 'software.amazon.awssdk:s3'
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
+
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.amqp:spring-rabbit-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 
-    //S3
-    implementation platform('software.amazon.awssdk:bom:2.20.43')
-    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {
