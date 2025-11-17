@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="widtQh=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FUTSAL MATCH - 실시간 채팅</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
@@ -13,10 +13,12 @@
 <header class="quick-menu">
     <div class="logo"><a href="/">MULTI FC</a></div>
     <div class="header-icons">
-        <button id="profile-menu-toggle" class="profile-icon" style="position: relative; display: none;">
+
+        <button id="profile-menu-toggle" class="profile-icon">
             <i class="fas fa-user-circle"></i>
             <span id="notification-badge" class="notification-badge"></span>
         </button>
+
         <div id="profile-menu" class="user-menu">
             <div class="user-info">
                 <strong><span id="user-menu-username">사용자</span>님</strong>
@@ -31,6 +33,7 @@
         </div>
         <button id="menu-toggle" class="menu-toggle-btn"><i class="fas fa-bars"></i></button>
     </div>
+
     <nav id="main-menu" class="main-nav">
         <ul>
             <li><a href="/"><i class="fas fa-home"></i> 메인 (Home)</a></li>
@@ -197,6 +200,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
 <script>
+    // ⭐⭐ [핵심 수정] DOMContentLoaded 이전에 헤더 닉네임 로딩 함수 정의 및 실행 ⭐⭐
+    (function loadHeaderNickname() {
+        const usernameSpan = document.getElementById('user-menu-username');
+        const nickname = localStorage.getItem('userNickname') || '사용자';
+        if (usernameSpan) {
+            usernameSpan.textContent = nickname;
+        }
+    })();
+    // ⭐⭐ [수정 끝] ⭐⭐
+
     // --- [수정된] 메뉴 및 프로필 토글 로직 ---
     const menuToggle = document.getElementById('menu-toggle');
     const mainMenu = document.getElementById('main-menu');
@@ -205,22 +218,13 @@
     const logoutButton = document.getElementById('logout-button');
     const navLoginLink = document.querySelector('#main-menu a[href="/login"]');
     const navLogoutLink = document.querySelector('#main-menu ul li:last-child');
-
-    // ⭐⭐ [수정] DOMContentLoaded 이전에 헤더 닉네임 로딩 함수 정의 및 실행 (최우선 실행) ⭐⭐
-    (function loadHeaderNickname() {
-        const usernameSpan = document.getElementById('user-menu-username');
-        if (usernameSpan) {
-            // 'userNickname' 키의 값을 가져와서 설정합니다.
-            usernameSpan.textContent = localStorage.getItem('userNickname') || '사용자';
-        }
-    })();
-    // ⭐⭐ [수정 끝] ⭐⭐
+    const navNotificationsLink = document.getElementById('nav-notifications-link');
 
 
     if (menuToggle) {
         menuToggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            mainMenu.classList.toggle('show');
+            if (mainMenu) mainMenu.classList.toggle('show');
             if (profileMenu) profileMenu.classList.remove('show');
         });
     }
@@ -228,7 +232,7 @@
     if (profileMenuToggle) {
         profileMenuToggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            profileMenu.classList.toggle('show');
+            if (profileMenu) profileMenu.classList.toggle('show');
             if (mainMenu) mainMenu.classList.remove('show');
         });
     }
@@ -240,8 +244,8 @@
     const inviteModal = document.getElementById('invite-modal');
 
     document.addEventListener('click', (event) => {
-        const isClickInsideMenu = mainMenu.contains(event.target) || menuToggle.contains(event.target);
-        const isClickInsideProfile = profileMenu.contains(event.target) || profileMenuToggle.contains(event.target);
+        const isClickInsideMenu = mainMenu && (mainMenu.contains(event.target) || menuToggle.contains(event.target));
+        const isClickInsideProfile = profileMenu && (profileMenu.contains(event.target) || profileMenuToggle.contains(event.target));
 
         // 인라인 프로필 관련 (participant-item 클릭은 openInlineProfileDetail 내부에서 처리됨)
         const isClickInsideInlineProfile =
@@ -250,18 +254,22 @@
 
         const isNewChatButton =
             event.target.closest('#new-chat-btn') ||
-            event.target.closest('#profile-chat-btn'); // ← 1:1 채팅하기 버튼 추가됨
+            event.target.closest('#profile-chat-btn');
 
         // 모달 관련
         const isClickInsideNewChatModal =
             newChatModal.contains(event.target) || isNewChatButton;
+
+        const isClickInsideProfileModal = profileModal && profileModal.contains(event.target);
+        const isClickInsideInviteModal = inviteModal && inviteModal.contains(event.target);
+
         // 1. 메인 메뉴 닫기
-        if (!isClickInsideMenu && mainMenu.classList.contains('show')) {
+        if (mainMenu && mainMenu.classList.contains('show') && !isClickInsideMenu) {
             mainMenu.classList.remove('show');
         }
 
         // 2. 프로필 메뉴 닫기
-        if (!isClickInsideProfile && profileMenu && profileMenu.classList.contains('show')) {
+        if (profileMenu && profileMenu.classList.contains('show') && !isClickInsideProfile) {
             profileMenu.classList.remove('show');
         }
 
@@ -271,23 +279,27 @@
         }
 
         // 4. 모달 창 닫기 (모달 콘텐츠 자체가 아닌 바깥쪽 오버레이 클릭 시)
-        if (newChatModal.classList.contains('open') && !isClickInsideNewChatModal) {
+        if (newChatModal && newChatModal.classList.contains('open') && !isClickInsideNewChatModal) {
             openNewChatModal(false);
         }
-        if (profileModal.classList.contains('open') && !isClickInsideProfileModal) {
+        if (profileModal && profileModal.classList.contains('open') && !isClickInsideProfileModal) {
             openProfileModal(false);
         }
-        if (inviteModal.classList.contains('open') && !isClickInsideInviteModal) {
+        if (inviteModal && inviteModal.classList.contains('open') && !isClickInsideInviteModal) {
             openInviteModal(false);
         }
 
         // 5. 사이드바 닫기 (채팅 영역을 클릭했을 때)
         const participantSidebar = document.getElementById('participant-sidebar');
-        const isClickInsideSidebar = participantSidebar.contains(event.target) || event.target.closest('button[onclick="openParticipantList()"]');
-        const isClickInsideChatContent = chatContentArea.contains(event.target) && !isClickInsideInlineProfile;
+        const chatContentArea = document.querySelector('.chat-content-area'); // 재정의 필요
 
-        if (participantSidebar.classList.contains('open') && isClickInsideChatContent && !isClickInsideSidebar) {
-            openParticipantList(false);
+        if (participantSidebar && chatContentArea) {
+            const isClickInsideSidebar = participantSidebar.contains(event.target) || event.target.closest('button[onclick="openParticipantList()"]');
+            const isClickInsideChatContent = chatContentArea.contains(event.target) && !isClickInsideInlineProfile;
+
+            if (participantSidebar.classList.contains('open') && isClickInsideChatContent && !isClickInsideSidebar) {
+                openParticipantList(false);
+            }
         }
     });
     // --- [수정된] 메뉴 및 프로필 토글 로직 끝 ---
@@ -419,6 +431,42 @@
         { name: 'UserE', status: '온라인' },
         { name: 'UserF', status: '오프라인' }
     ];
+
+    // --- 알림 배지 로직 (다른 페이지와 통일) ---
+    const badge = document.getElementById('notification-badge');
+    let hasReviewNotif = false;
+    let hasScheduleNotif = false;
+
+    function updateGlobalBadge() {
+        if (badge) {
+            const hasNewNotification = hasReviewNotif || hasScheduleNotif;
+            badge.style.display = hasNewNotification ? 'block' : 'none';
+        }
+    }
+    async function checkPendingReviews() {
+        if (localStorage.getItem('hasReadReviews') === 'true') {
+            hasReviewNotif = false;
+            return;
+        }
+        await new Promise(r => setTimeout(r, 200));
+        const mockReviews = { "count": 1 };
+        if (mockReviews.count > 0) {
+            hasReviewNotif = true;
+        }
+    }
+    async function checkUpcomingSchedules() {
+        if (localStorage.getItem('hasReadSchedules') === 'true') {
+            hasScheduleNotif = false;
+            return;
+        }
+        await new Promise(r => setTimeout(r, 500));
+        const mockSchedules = [ { id: 1, date: "2025-11-01" } ];
+        if (mockSchedules.length > 0) {
+            hasScheduleNotif = true;
+        }
+    }
+    // ---------------------------------------------
+
 
     function updateStatus(message, isError = true) {
         connectionStatus.textContent = message;
@@ -1077,10 +1125,7 @@
             participants: [hostName, ...otherParticipants],
             maxParticipants: matchChatData.maxParticipants || 10,
             createdAt: new Date().toISOString().slice(0, 10),
-            unreadCount: 0,
-
-            // ✅ 어떤 경기에서 만들어진 채팅방인지 저장
-            fromMatchId: matchChatData.fromMatchId || null
+            unreadCount: 0
         };
 
         if (!MOCK_ROOMS['group']) {
@@ -1098,7 +1143,7 @@
         saveRoomsToStorage();
 
         chatTypeTabs.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
-        const groupTab = document.querySelector('[data-type="group"]');
+        const groupTab = document.querySelector(`[data-type="group"]`);
         if (groupTab) groupTab.classList.add('active');
 
         currentChatType = 'group';
@@ -1122,7 +1167,9 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        // ⭐ [수정] 1:1 채팅하기 버튼 기능 구현
+        // --- 메뉴 토글 및 외부 클릭 로직 (ID 수정 반영) ---
+        // ... (이벤트 리스너는 DOMContentLoaded 외부에 정의되어 있습니다) ...
+
         const profileChatBtnElement = document.getElementById('profile-chat-btn');
         if (profileChatBtnElement) {
             profileChatBtnElement.addEventListener('click', function() {
@@ -1147,6 +1194,18 @@
             return;
         }
 
+        // ⭐⭐ 알림 배지 및 상태 로직 실행 ⭐⭐
+        (async () => {
+            const profileMenuToggle = document.getElementById('profile-menu-toggle');
+            if (profileMenuToggle) profileMenuToggle.style.display = 'block';
+
+            await checkPendingReviews();
+            await checkUpcomingSchedules();
+            updateGlobalBadge();
+        })();
+        // ⭐⭐ 알림 배지 및 상태 로직 끝 ⭐⭐
+
+
         // ✅ localStorage에 저장된 채팅방 먼저 복원
         loadRoomsFromStorage();
 
@@ -1162,16 +1221,13 @@
         updateNewChatForm('one-on-one');
         openInlineProfileDetail(false);
 
-        // ⭐⭐⭐ [추가] 채팅 생성 버튼 기능 재부착 ⭐⭐⭐
         const newChatBtn = document.getElementById('new-chat-btn');
         if (newChatBtn) {
             newChatBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // 외부 클릭 닫기 이벤트와 충돌 방지
+                e.stopPropagation();
                 openNewChatModal(true);
             });
         }
-        // ⭐⭐⭐ [추가 끝] ⭐⭐⭐
-
 
         // ✅ 경기 상세에서 넘어온 그룹 채팅 생성 요청 처리
         const matchChatRaw = localStorage.getItem('match_chat_request');
@@ -1187,40 +1243,9 @@
         }
     });
 
-    function updateGlobalBadge() {
-        const hasNew = localStorage.getItem('hasNewNotification') === 'true';
-        const badge = document.getElementById('notification-badge');
-        if (badge) badge.style.display = hasNew ? 'block' : 'none';
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const profileMenuToggle = document.getElementById('profile-menu-toggle');
-        const profileMenu = document.getElementById('profile-menu');
-        const logoutButton = document.getElementById('logout-button');
-        const usernameSpan = document.getElementById('user-menu-username');
-
-        const accessToken = localStorage.getItem('accessToken');
-        if (accessToken) {
-            profileMenuToggle.style.display = 'flex';
-            // ⭐ [수정] 닉네임 로딩 userNickname 키 사용
-            usernameSpan.textContent = localStorage.getItem('userNickname') || '사용자';
-        }
-
-        updateGlobalBadge();
-    });
-
     window.addEventListener('storage', (e) => {
         if (e.key === 'hasNewNotification') updateGlobalBadge();
     });
-
-    if (document.getElementById('logout-button')) {
-        document.getElementById('logout-button').addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('hasReadReviews');
-            localStorage.removeItem('hasReadSchedules');
-            localStorage.removeItem('hasNewNotification');
-            window.location.href = '/login';
-        });
-    }
 </script>
+</body>
+</html>
