@@ -171,9 +171,10 @@
         });
     }
 
-    // ⭐⭐ [추가] 관리자 권한 시뮬레이션 ⭐⭐
+    // ⭐⭐⭐ [핵심 수정] 관리자 닉네임 정의 및 권한 확인 로직 ⭐⭐⭐
+    const ADMIN_NICKNAME = "AdminUser";
     const CURRENT_USER_NICKNAME = localStorage.getItem('userNickname') || '사용자';
-    const CURRENT_USER_ROLE = (CURRENT_USER_NICKNAME === '관리자' || CURRENT_USER_NICKNAME.includes('(운영진)')) ? 'ADMIN' : 'USER';
+    const CURRENT_USER_ROLE = (CURRENT_USER_NICKNAME === ADMIN_NICKNAME) ? 'ADMIN' : 'USER';
     // ---
 
     /**
@@ -281,7 +282,7 @@
         // 2. 메뉴 활성화 함수 실행
         setActiveMenuItem();
 
-        // ⭐⭐⭐ [핵심 추가] 공지사항 카테고리 제한 ⭐⭐⭐
+        // ⭐⭐⭐ [핵심 수정] 공지사항 카테고리 제한 ⭐⭐⭐
         const categorySelect = document.getElementById('category');
         const noticeOption = categorySelect.querySelector('option[value="notice"]');
 
@@ -343,7 +344,7 @@
             errorMsg.style.display = 'block';
             return;
         }
-        // ★★★ [추가] 관리자 권한 확인 (공지) ★★★
+        // ★★★ [수정] 관리자 권한 확인 (공지) ★★★
         if (category === 'notice' && CURRENT_USER_ROLE !== 'ADMIN') {
             errorMsg.textContent = '❌ 공지사항은 관리자만 작성/수정할 수 있습니다.';
             errorMsg.style.display = 'block';
@@ -392,6 +393,12 @@
             viewCount: 0,
             writerId: 999 // 더미 writerId 추가 (권한 체크 대비)
         };
+
+        // 공지글의 경우 작성자를 명시적으로 '관리자'로 설정 (DB 대체 시 DB 닉네임 사용)
+        if (category === 'notice') {
+            newPost.writer = '관리자';
+        }
+
 
         // ✅ 로컬 스토리지에 글 목록 업데이트
         let posts = JSON.parse(localStorage.getItem('community_posts')) || [];
