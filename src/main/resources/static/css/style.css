@@ -2952,6 +2952,7 @@ body, html {
     display: flex;
     flex-grow: 1;
 }
+/* community.html에 사용된 탭 버튼 스타일 */
 .board-tabs button {
     background: none;
     border: none;
@@ -2959,10 +2960,36 @@ body, html {
     font-size: 16px;
     font-weight: 600;
     color: #777;
-    border-bottom: 2px solid transparent;
+    border-bottom: 2px solid transparent; /* 기본 밑줄 투명 */
     cursor: pointer;
     transition: color 0.2s, border-bottom 0.2s;
     margin-right: 5px;
+}
+
+/* community.html에 사용된 탭 버튼 스타일 */
+.board-tabs button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #777;
+    border-bottom: 2px solid transparent; /* 기본 밑줄 투명 */
+    cursor: pointer;
+    transition: color 0.2s, border-bottom 0.2s;
+    margin-right: 5px;
+}
+
+/* ⭐⭐⭐ [추가/수정] 활성화된 탭 버튼 스타일 ⭐⭐⭐ */
+.board-tabs button.active {
+    color: #6c5ce7; /* 활성화 시 보라색 텍스트 */
+    border-bottom: 3px solid #6c5ce7; /* 활성화 시 보라색 밑줄 */
+}
+
+/* [추가] 비활성화 탭 호버 스타일 */
+.board-tabs button:hover:not(.active) {
+    color: #333; /* 호버 시 짙은 회색 */
+    background-color: #f7f7f7; /* 옅은 배경색 */
 }
 
 .write-button {

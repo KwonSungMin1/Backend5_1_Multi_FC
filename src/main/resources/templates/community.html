@@ -186,6 +186,11 @@
     }
     // ---------------------------------------------
 
+    // ⭐⭐ [추가] 관리자 권한 시뮬레이션 (community.html용) ⭐⭐
+    const CURRENT_USER_NICKNAME = localStorage.getItem('userNickname') || '사용자';
+    const CURRENT_USER_ROLE = (CURRENT_USER_NICKNAME === '관리자' || CURRENT_USER_NICKNAME.includes('(운영진)')) ? 'ADMIN' : 'USER';
+    // ---
+
 
     // (★기존 더미 데이터)
     const initialPosts = [
@@ -420,11 +425,22 @@
                 tab.classList.add('active');
                 document.getElementById('search-keyword').value = '';
                 renderPostList(tab.dataset.category, '', '', 1);
+
+                // ⭐⭐⭐ [핵심 추가] 공지사항 탭 선택 시 관리자 권한 확인 ⭐⭐⭐
+                if (tab.dataset.category === 'notice' && CURRENT_USER_ROLE !== 'ADMIN') {
+                    writeButton.style.display = 'none';
+                } else {
+                    writeButton.style.display = 'block';
+                }
             });
         });
 
         // 3. (★) 초기 로드 시 "전체 목록" 표시 (로컬 스토리지 통합)
         renderPostList('all');
+
+        // ⭐⭐⭐ [핵심 추가] 초기 로드 시 버튼 상태 설정 (전체 목록) ⭐⭐⭐
+        // 초기 탭은 'all'이므로, 관리자/비관리자 모두 글쓰기 버튼을 보이게 합니다.
+        writeButton.style.display = 'block';
 
         // ✅ 게시글 클릭 시 상세페이지 이동
         document.querySelectorAll('.post-table').forEach(table => {
